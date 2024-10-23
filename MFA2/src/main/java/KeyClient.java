@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.Enumeration;
 
 public class KeyClient {
- private static final int PORT = 12345;
+ private static final int PORT = 12344;
  private static final String TRUSTSTORE_FILE = "clienttruststore.jks";
  private static final String TRUSTSTORE_PASSWORD = "password";
  private static final String RECEIVED_KEYS_DIR = "received_keys";

@@ -8,7 +8,7 @@ import java.security.PublicKey;
 import java.util.Base64;
 
 public class Administrator {
- private static final int PORT = 12345;
+ private static final int PORT = 12344;
  private static final String KEYSTORE_FILE = "serverkeystore.jks";
  private static final String KEYSTORE_PASSWORD = "password";
  private static final String KEY_PASSWORD = "password";
