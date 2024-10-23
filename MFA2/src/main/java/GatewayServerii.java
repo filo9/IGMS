@@ -12,13 +12,15 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import java.security.SecureRandom;
+import java.security.*;
 import javax.net.ssl.KeyManagerFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyStore;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -154,5 +156,38 @@ public class GatewayServerii {
         } else {
             System.out.println("No client connected with name: " + deviceName);
         }
+    }
+    private static byte[] CHACHAencrypt(byte[] plaintext, SecretKey key, byte[] nonce) throws Exception {
+        Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
+        GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, nonce);
+        cipher.init(Cipher.ENCRYPT_MODE, key, gcmParamSpec);
+        return cipher.doFinal(plaintext);
+    }
+
+    // 解密消息
+    private static byte[] CHACHAdecrypt(byte[] ciphertext, SecretKey key, byte[] nonce) throws Exception {
+        Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
+        GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, nonce);
+        cipher.init(Cipher.DECRYPT_MODE, key, gcmParamSpec);
+        return cipher.doFinal(ciphertext);
+    }
+    private static PrivateKey loadPrivateKey(String filePath) throws Exception {
+        String privateKeyPEM = new String(Files.readAllBytes(Paths.get(filePath)))
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(encoded));
+    }
+
+    private static PublicKey loadPublicKey(String filePath) throws Exception {
+        String publicKeyPEM = new String(Files.readAllBytes(Paths.get(filePath)))
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s+", "");
+        byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        return keyFactory.generatePublic(new X509EncodedKeySpec(encoded));
     }
 }
