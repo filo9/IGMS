@@ -67,8 +67,6 @@ public class Client {
             // 6. 使用网关公钥加密 AES 会话密钥
             PublicKey gatewayPublicKey = loadPublicKey(GATEWAY_PUBLIC_KEY_FILE);
             byte[] encryptedAesKey = encryptAesKeyWithPublicKey(aesKey.getEncoded(), gatewayPublicKey);
-            // 创建接收密钥的目录
-            Files.createDirectories(Paths.get(RECEIVED_KEYS_DIR));
 
             // 加载信任存储
             KeyStore trustStore = KeyStore.getInstance("JKS");
