@@ -3,16 +3,17 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.codec.string.StringDecoder;
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
+import javax.crypto.spec.SecretKeySpec;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
+import java.nio.ByteBuffer;
 import java.security.*;
+import java.nio.charset.StandardCharsets;
 import javax.net.ssl.KeyManagerFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,7 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
+import javax.crypto.spec.IvParameterSpec;
 public class GatewayServerii {
 
     private static final int COMMAND_PORT = 5555; // 和第二个服务端通信的端口
@@ -35,8 +36,9 @@ public class GatewayServerii {
     private static final String KEYSTORE_FILE = "serverkeystore.jks"; // 密钥库文件
     private static final String KEYSTORE_PASSWORD = "password"; // 密钥库密码
     private static final String KEY_PASSWORD = "password"; // 密钥密码
-
+    private static final String GATEWAY_PRIVATE_KEY_FILE = "GatewayServerPrivateKey.pem";
     private Map<String, Channel> clientConnections = new HashMap<>(); // 用于存储客户端连接
+    private Map<String, SecretKey> deviceKeys = new HashMap<>();// 存储设备名与其对应的ChaCha20密钥
     private Map<String, BlockingQueue<String>> commandQueues = new HashMap<>(); // 用于存储命令队列
     private ExecutorService commandExecutor = Executors.newFixedThreadPool(10); // 线程池处理命令
 
@@ -72,8 +74,8 @@ public class GatewayServerii {
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new SslHandler(nettySslContext.newEngine(ch.alloc())));
-                            pipeline.addLast(new StringDecoder());
-                            pipeline.addLast(new StringEncoder());
+                            pipeline.addLast(new ByteArrayDecoder());
+                            pipeline.addLast(new ByteArrayEncoder());
                             pipeline.addLast(new ClientHandler());
                         }
                     });
@@ -87,19 +89,45 @@ public class GatewayServerii {
         }
     }
 
-    private class ClientHandler extends SimpleChannelInboundHandler<String> {
+    private class ClientHandler extends SimpleChannelInboundHandler<byte[]> {
         @Override
+        protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
+            // 模拟收到的加密CHACHA20密钥 + 随机数 + 加密后的消息（设备名 + 签名）
+            byte[] encryptedCHACHAKey = extractPart(msg, 0, 32); // 假设前256字节为加密的CHACHA密钥
+            byte[] nonce = extractPart(msg, 32, 12);  // 假设接下来12字节为nonce
+            byte[] encryptedMessage = extractPart(msg, 44, msg.length - 44); // 剩余为加密的消息
 
-        protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-            // 处理客户端消息
-            String deviceName = msg.trim();
-            // 存储客户端连接信息
-            clientConnections.put(deviceName, ctx.channel());
-            commandQueues.put(deviceName, new LinkedBlockingQueue<>());
-            System.out.println("Client connected: " + deviceName);
+            // 加载服务端私钥
+            PrivateKey serverPrivateKey = loadPrivateKey(GATEWAY_PRIVATE_KEY_FILE);
 
-            // 启动命令处理线程
-            commandExecutor.submit(() -> processCommands(deviceName, ctx));
+            // 解密会话密钥
+            byte[] decryptedCHACHAKey = decryptCHAHCAKeyWithPrivateKey(encryptedCHACHAKey, serverPrivateKey);
+            SecretKey chaChaKey = new SecretKeySpec(decryptedCHACHAKey, "ChaCha20");
+
+            // 解密消息
+            byte[] decryptedMessage = CHACHAdecrypt(encryptedMessage, chaChaKey, nonce);
+
+            // 解析设备名和签名
+            String deviceName = extractDeviceName(decryptedMessage);
+            byte[] signature = extractSignature(decryptedMessage);
+
+            // 加载设备公钥
+            PublicKey devicePublicKey = loadPublicKey("received_keys/devicePublicKey_" + deviceName + ".pem");
+
+            // 验证签名
+            byte[] messageHash = hashMessage(deviceName);
+            if (verifySignature(messageHash, signature, devicePublicKey)) {
+                // 签名验证成功，保存设备名与密钥
+                deviceKeys.put(deviceName, chaChaKey);
+                // 存储客户端连接信息
+                clientConnections.put(deviceName, ctx.channel());
+                commandQueues.put(deviceName, new LinkedBlockingQueue<>());
+                // 启动命令处理线程
+                commandExecutor.submit(() -> processCommands(deviceName, ctx));
+                System.out.println("Device " + deviceName + " authenticated.");
+            } else {
+                System.out.println("Signature verification failed for " + deviceName);
+            }
         }
 
         private void processCommands(String deviceName, ChannelHandlerContext ctx) {
@@ -108,11 +136,23 @@ public class GatewayServerii {
                 try {
                     // 从队列中获取命令并发送
                     String command = commandQueue.take(); // 阻塞，直到有命令可处理
-                    ctx.writeAndFlush(command); // 直接通过 ctx 发送命令
+                    SecretKey secretKey = getDeviceKey(deviceName);
+                    // 生成随机nonce
+                    byte[] nonce = new byte[12];
+                    new SecureRandom().nextBytes(nonce);
+                    // 使用CHACHA密钥和nonce加密消息
+                    byte[] extendedMessage = createExtendedMessage(command, nonce);
+                    byte[] encryptedMessage = CHACHAencrypt(extendedMessage, secretKey, nonce);
+
+                    ctx.writeAndFlush(encryptedMessage); // 直接通过 ctx 发送命令
                     System.out.println("Command sent to client " + deviceName + ": " + command);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break; // 线程被中断，退出循环
+                }catch (Exception e) {
+                    // 捕获其他所有异常
+                    System.err.println("Error processing command for device: " + e.getMessage());
+                    e.printStackTrace(); // 打印完整的异常堆栈跟踪
                 }
             }
         }
@@ -159,16 +199,20 @@ public class GatewayServerii {
     }
     private static byte[] CHACHAencrypt(byte[] plaintext, SecretKey key, byte[] nonce) throws Exception {
         Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
-        GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, nonce);
-        cipher.init(Cipher.ENCRYPT_MODE, key, gcmParamSpec);
+        // 使用 IvParameterSpec 来初始化 Cipher
+        IvParameterSpec ivSpec = new IvParameterSpec(nonce);
+
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
         return cipher.doFinal(plaintext);
     }
 
     // 解密消息
     private static byte[] CHACHAdecrypt(byte[] ciphertext, SecretKey key, byte[] nonce) throws Exception {
         Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
-        GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, nonce);
-        cipher.init(Cipher.DECRYPT_MODE, key, gcmParamSpec);
+        // 使用相同的 IvParameterSpec
+        IvParameterSpec ivSpec = new IvParameterSpec(nonce);
+
+        cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
         return cipher.doFinal(ciphertext);
     }
     private static PrivateKey loadPrivateKey(String filePath) throws Exception {
@@ -180,7 +224,17 @@ public class GatewayServerii {
         KeyFactory keyFactory = KeyFactory.getInstance("EC");
         return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(encoded));
     }
-
+    // 提取字节数组的某部分
+    private byte[] extractPart(byte[] msg, int start, int length) {
+        byte[] part = new byte[length];
+        System.arraycopy(msg, start, part, 0, length);
+        return part;
+    }
+    private static byte[] decryptCHAHCAKeyWithPrivateKey(byte[] encryptedCHACHAKey, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("ECIES", "BC");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return cipher.doFinal(encryptedCHACHAKey);
+    }
     private static PublicKey loadPublicKey(String filePath) throws Exception {
         String publicKeyPEM = new String(Files.readAllBytes(Paths.get(filePath)))
                 .replace("-----BEGIN PUBLIC KEY-----", "")
@@ -189,5 +243,48 @@ public class GatewayServerii {
         byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
         KeyFactory keyFactory = KeyFactory.getInstance("EC");
         return keyFactory.generatePublic(new X509EncodedKeySpec(encoded));
+    }
+    private String extractDeviceName(byte[] decryptedMessage) {
+        // 假设设备名位于解密消息的前面部分
+        int deviceNameLength = decryptedMessage[0]; // 第一个字节是设备名的长度
+        return new String(decryptedMessage, 1, deviceNameLength, StandardCharsets.UTF_8);
+    }
+
+    private byte[] extractSignature(byte[] decryptedMessage) {
+        // 提取签名，假设签名位于设备名之后
+        int deviceNameLength = decryptedMessage[0];
+        byte[] signature = new byte[decryptedMessage.length - 1 - deviceNameLength];
+        System.arraycopy(decryptedMessage, 1 + deviceNameLength, signature, 0, signature.length);
+        return signature;
+    }
+    private static byte[] hashMessage(String message) throws Exception {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return digest.digest(message.getBytes());
+    }
+    private static boolean verifySignature(byte[] messageHash, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature sig = Signature.getInstance("SHA256withECDSA");
+        sig.initVerify(publicKey);
+        sig.update(messageHash);
+        return sig.verify(signature);
+    }
+    public SecretKey getDeviceKey(String deviceName) {
+        // 从 Map 中读取密钥
+        SecretKey secretKey = deviceKeys.get(deviceName);
+
+        if (secretKey == null) {
+            System.out.println("No key found for device: " + deviceName);
+            return null;
+        }
+
+        return secretKey;
+    }
+    private static byte[] createExtendedMessage(String deviceName, byte[] nonce) {
+        byte[] deviceNameBytes = deviceName.getBytes(StandardCharsets.UTF_8);
+
+        ByteBuffer buffer = ByteBuffer.allocate( deviceNameBytes.length + nonce.length);
+        buffer.put(nonce);
+        buffer.put(deviceNameBytes);
+
+        return buffer.array();
     }
 }

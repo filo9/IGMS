@@ -1,15 +1,16 @@
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.security.Security;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import javax.crypto.SecretKey;
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,14 +23,14 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.spec.KeySpec;
 import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.zip.Deflater;
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
 
 public class TargetDevice {
-
+    private static SecretKey CHACHAKey;
     private static final int TLS_PORT = 12346; // 与服务端的TLS连接端口
     private static final String TRUSTSTORE_FILE = "clienttruststore.jks"; // 信任库文件
     private static final String TRUSTSTORE_PASSWORD = "password"; // 信任库密码
@@ -69,8 +70,8 @@ public class TargetDevice {
                             protected void initChannel(SocketChannel ch) {
                                 ChannelPipeline pipeline = ch.pipeline();
                                 pipeline.addLast(new SslHandler(sslContext.newEngine(ch.alloc())));
-                                pipeline.addLast(new StringEncoder());
-                                pipeline.addLast(new StringDecoder());
+                                pipeline.addLast(new ByteArrayEncoder());
+                                pipeline.addLast(new ByteArrayDecoder());
                                 pipeline.addLast(new ClientHandler());
                             }
                         });
@@ -86,15 +87,19 @@ public class TargetDevice {
         }
     }
 
-    private static class ClientHandler extends SimpleChannelInboundHandler<String> {
-
+    private static class ClientHandler extends SimpleChannelInboundHandler<byte[]> {
+        private byte[] extractPart(byte[] msg, int start, int length) {
+            byte[] part = new byte[length];
+            System.arraycopy(msg, start, part, 0, length);
+            return part;
+        }
         @Override
-        protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-            if (msg != null && !msg.isEmpty()) {
-                System.out.println("Received command: " + msg);
-            } else {
-                System.out.println("Received empty command.");
-            }
+        protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
+
+            byte[] nonce = extractPart(msg, 0, 12);  // 假设接下来12字节为nonce
+            byte[] encryptedCommand = extractPart(msg, 12, msg.length - 12); // 剩余为加密的消息
+            byte[] command = CHACHAdecrypt(encryptedCommand, CHACHAKey, nonce);
+            System.out.println("Received command: " + command);
         }
 
         @Override
@@ -106,36 +111,40 @@ public class TargetDevice {
         @Override
         public void channelActive(ChannelHandlerContext ctx) {
             try{
-                // 创建接收密钥的目录
-                Files.createDirectories(Paths.get(RECEIVED_KEYS_DIR));
-
-                //生成chacha20密钥
+                // 生成CHACHA20密钥
                 byte[] masterKey = generateMasterKey();
-                SecretKey CHACHAKey = deriveKey(masterKey);
+                setCHACHAKey(deriveKey(masterKey));
 
-                //加载ECC密钥
+                // 加载ECC密钥
                 PrivateKey clientPrivateKey = loadPrivateKey(CLIENT_PRIVATE_KEY_FILE);
                 PublicKey gatewayPublicKey = loadPublicKey(GATEWAY_PUBLIC_KEY_FILE);
 
-                //使用设备私钥对哈希值生成报文鉴别码 (MAC)
+                // 使用设备私钥对设备名进行签名
                 byte[] messageHash = hashMessage(DEVICE_NAME);
-                byte[]  sign= signMessage(messageHash, clientPrivateKey);
+                byte[] signature = signMessage(messageHash, clientPrivateKey);
 
-                // 2. 生成随机nonce
+                // 生成随机nonce
                 byte[] nonce = new byte[12];
                 new SecureRandom().nextBytes(nonce);
 
-                //加密消息签名
-                byte[] extendedMessage = createExtendedMessage(DEVICE_NAME, sign);
-                byte[] encryptedMessage = CHACHAencrypt(extendedMessage,CHACHAKey,nonce);
+                // 构建消息：设备名 + 签名
+                byte[] extendedMessage = createExtendedMessage(DEVICE_NAME, signature);
 
-                //使用网关公钥加密 CHACHA20 会话密钥
+                // 使用CHACHA密钥和nonce加密消息
+                byte[] encryptedMessage = CHACHAencrypt(extendedMessage, CHACHAKey, nonce);
+
+                // 使用网关公钥加密CHACHA密钥
                 byte[] encryptedCHACHAKey = encryptCHAHCAKeyWithPublicKey(CHACHAKey.getEncoded(), gatewayPublicKey);
 
-                // 发送设备名称到服务器
-                String deviceName = DEVICE_NAME; // 根据需要更改设备名称
-                ctx.writeAndFlush(deviceName + "\n");
-                System.out.println(deviceName + " connected to server.");
+                // 将密钥、nonce和加密消息发送给服务端
+                ByteBuffer buffer = ByteBuffer.allocate(encryptedCHACHAKey.length + nonce.length + encryptedMessage.length);
+                buffer.put(encryptedCHACHAKey);
+                buffer.put(nonce);
+                buffer.put(encryptedMessage);
+
+                ctx.writeAndFlush(buffer.array());
+                System.out.println(DEVICE_NAME + " connected to server.");
+                System.out.println(DEVICE_NAME + " sent encrypted key and message to server.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -143,16 +152,20 @@ public class TargetDevice {
     }
     private static byte[] CHACHAencrypt(byte[] plaintext, SecretKey key, byte[] nonce) throws Exception {
         Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
-        GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, nonce);
-        cipher.init(Cipher.ENCRYPT_MODE, key, gcmParamSpec);
+        // 使用 IvParameterSpec 来初始化 Cipher
+        IvParameterSpec ivSpec = new IvParameterSpec(nonce);
+
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
         return cipher.doFinal(plaintext);
     }
 
     // 解密消息
     private static byte[] CHACHAdecrypt(byte[] ciphertext, SecretKey key, byte[] nonce) throws Exception {
         Cipher cipher = Cipher.getInstance("ChaCha20-Poly1305");
-        GCMParameterSpec gcmParamSpec = new GCMParameterSpec(128, nonce);
-        cipher.init(Cipher.DECRYPT_MODE, key, gcmParamSpec);
+        // 使用相同的 IvParameterSpec
+        IvParameterSpec ivSpec = new IvParameterSpec(nonce);
+
+        cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
         return cipher.doFinal(ciphertext);
     }
     private static PrivateKey loadPrivateKey(String filePath) throws Exception {
@@ -221,32 +234,15 @@ public class TargetDevice {
     private static byte[] createExtendedMessage(String deviceName, byte[] mac) {
         byte[] deviceNameBytes = deviceName.getBytes(StandardCharsets.UTF_8);
 
-        ByteBuffer buffer = ByteBuffer.allocate( 1 + deviceNameBytes.length + 1 + mac.length);
+        ByteBuffer buffer = ByteBuffer.allocate( 1 + deviceNameBytes.length + mac.length);
         buffer.put((byte) deviceNameBytes.length); // 设备名长度
         buffer.put(deviceNameBytes);
         buffer.put(mac);
 
-
-        // 压缩数据
-        byte[] combined = buffer.array();
-        //System.out.println("压缩前数据: " + Arrays.toString(combined));
-
-        Deflater compressor = new Deflater();
-        compressor.setInput(combined);
-        compressor.finish();
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(combined.length);
-        byte[] compressionBuffer = new byte[1024];
-
-        while (!compressor.finished()) {
-            int count = compressor.deflate(compressionBuffer);
-            outputStream.write(compressionBuffer, 0, count);
-        }
-
-        byte[] compressedData = outputStream.toByteArray();
-        //System.out.println("压缩后数据: " + Arrays.toString(compressedData));
-
-        return compressedData;
+        return buffer.array();
+    }
+    public static void setCHACHAKey(SecretKey newKey) {
+        CHACHAKey = newKey;
     }
 
 }
