@@ -34,7 +34,7 @@ public class Administrator {
    // 创建SSLServerSocket
    SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
    try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(PORT)) {
-    System.out.println("SSL服务器已启动，等待客户端连接...");
+    System.out.println("网关注册服务器已启动，端口号12344，等待客户端连接...");
 
     while (true) {
      try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {

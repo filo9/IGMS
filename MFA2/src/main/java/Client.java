@@ -28,8 +28,8 @@ public class Client {
     private static final String TRUSTSTORE_PASSWORD = "password";
     private static final String RECEIVED_KEYS_DIR = "received_keys";
     private static String DEVICE_NAME = "user";
-    private static final String TARGET_DEVICE_NAME = "TV";
-    private static final String COMMAND = "turn on";
+    private static String TARGET_DEVICE_NAME = "TV";
+    private static  String COMMAND = "turn on";
     private static final String GATEWAY_PUBLIC_KEY_FILE = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";
     private static final String CLIENT_PRIVATE_KEY_FILE = RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
     private static final int AES_KEY_SIZE = 128;
@@ -225,6 +225,12 @@ public class Client {
     }
     public static void setDeviceName(String newDeviceName) {
         DEVICE_NAME = newDeviceName;
+    }
+    public static void setTargetDeviceName(String newDeviceName) {
+        TARGET_DEVICE_NAME = newDeviceName;
+    }
+    public static void setCommand(String newCommand) {
+        COMMAND = newCommand;
     }
 
 }

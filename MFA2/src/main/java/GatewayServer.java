@@ -50,7 +50,7 @@ public class GatewayServer {
             // 创建SSLServerSocket
             SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
             try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(PORT)) {
-                System.out.println("SSL服务器已启动，等待客户端连接...");
+                System.out.println("网关转发服务器已启动，端口号12345，等待用户端连接...");
 
                 while (true) {
                     try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
@@ -269,7 +269,7 @@ public class GatewayServer {
             // 向服务端1发送目标客户端的名称和命令
             writer.println(deviceName);
             writer.println(command);
-            System.out.println("Trigger sent: " + command + " to " + deviceName);
+            System.out.println("转发命令: " + command + " 到设备: " + deviceName);
 
         } catch (Exception e) {
             e.printStackTrace();

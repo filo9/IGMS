@@ -1,6 +1,9 @@
 import java.util.Scanner;
 
 public class User {
+    private static String DEVICE_NAME = "user";
+    private static String TARGET_DEVICE_NAME = "TV";
+    private static  String COMMAND = "turn on";
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -15,12 +18,14 @@ public class User {
 
             switch (choice) {
                 case 1:
-                    KeyClient.setDeviceName("电子门"); // 修改 KeyClient 设备名
-                    KeyClient.main(null); // 启动 KeyClient
+                    KeyClient.setDeviceName(DEVICE_NAME); // 修改 用户
+                    KeyClient.main(null); // 注册
                     break;
                 case 2:
-                    TargetDevice.setDeviceName("电子门"); // 修改 TargetDevice 设备名
-                    TargetDevice.main(null); // 启动 TargetDevice
+                    Client.setDeviceName(DEVICE_NAME); // 修改 用户名
+                    Client.setTargetDeviceName(TARGET_DEVICE_NAME);// 修改 TargetDevice 设备名
+                    Client.setCommand(COMMAND);// 修改 命令
+                    Client.main(null); // 启动 TargetDevice
                     break;
                 case 0:
                     running = false; // 退出循环
