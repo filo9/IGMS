@@ -15,7 +15,7 @@ public class KeyClient {
  private static final String TRUSTSTORE_FILE = "clienttruststore.jks";
  private static final String TRUSTSTORE_PASSWORD = "password";
  private static final String RECEIVED_KEYS_DIR = "received_keys";
-
+ private static String DEVICE_NAME = "TV";
  public static void main(String[] args) {
   try {
    // 创建接收密钥的目录
@@ -49,7 +49,7 @@ public class KeyClient {
     System.out.println("连接到服务器: " + socket.getInetAddress());
 
     // 发送设备名称
-    String deviceName = "TV";
+    String deviceName = DEVICE_NAME;
     System.out.println("设备名称: " + deviceName);
     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
     out.println(deviceName);
@@ -119,5 +119,8 @@ public class KeyClient {
   String encodedKey = Base64.getEncoder().encodeToString(pkcs8EncodedKeySpec.getEncoded());
   String pemKey  = "-----BEGIN PUBLIC KEY-----\n" + encodedKey + "\n-----END PUBLIC KEY-----";
   Files.write(Paths.get(filePath), pemKey.getBytes());
+ }
+ public static void setDeviceName(String newDeviceName) {
+  DEVICE_NAME = newDeviceName;
  }
 }

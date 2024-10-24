@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.crypto.spec.IvParameterSpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class GatewayServerii {
 
     private static final int COMMAND_PORT = 5555; // 和第二个服务端通信的端口
@@ -43,6 +44,7 @@ public class GatewayServerii {
     private ExecutorService commandExecutor = Executors.newFixedThreadPool(10); // 线程池处理命令
 
     public static void main(String[] args) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
         GatewayServerii server = new GatewayServerii();
         server.start();
     }
@@ -93,9 +95,9 @@ public class GatewayServerii {
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
             // 模拟收到的加密CHACHA20密钥 + 随机数 + 加密后的消息（设备名 + 签名）
-            byte[] encryptedCHACHAKey = extractPart(msg, 0, 32); // 假设前256字节为加密的CHACHA密钥
-            byte[] nonce = extractPart(msg, 32, 12);  // 假设接下来12字节为nonce
-            byte[] encryptedMessage = extractPart(msg, 44, msg.length - 44); // 剩余为加密的消息
+            byte[] encryptedCHACHAKey = extractPart(msg, 1, msg[0]); // 假设前256字节为加密的CHACHA密钥
+            byte[] nonce = extractPart(msg, msg[0] + 1, 12);  // 假设接下来12字节为nonce
+            byte[] encryptedMessage = extractPart(msg, msg[0] + 13, msg.length - msg[0] - 13); // 剩余为加密的消息
 
             // 加载服务端私钥
             PrivateKey serverPrivateKey = loadPrivateKey(GATEWAY_PRIVATE_KEY_FILE);
@@ -112,7 +114,7 @@ public class GatewayServerii {
             byte[] signature = extractSignature(decryptedMessage);
 
             // 加载设备公钥
-            PublicKey devicePublicKey = loadPublicKey("received_keys/devicePublicKey_" + deviceName + ".pem");
+            PublicKey devicePublicKey = loadPublicKey("clientPublicKey_" + deviceName + ".pem");
 
             // 验证签名
             byte[] messageHash = hashMessage(deviceName);
@@ -124,7 +126,7 @@ public class GatewayServerii {
                 commandQueues.put(deviceName, new LinkedBlockingQueue<>());
                 // 启动命令处理线程
                 commandExecutor.submit(() -> processCommands(deviceName, ctx));
-                System.out.println("Device " + deviceName + " authenticated.");
+                System.out.println(deviceName + "connected!");
             } else {
                 System.out.println("Signature verification failed for " + deviceName);
             }
@@ -141,11 +143,13 @@ public class GatewayServerii {
                     byte[] nonce = new byte[12];
                     new SecureRandom().nextBytes(nonce);
                     // 使用CHACHA密钥和nonce加密消息
-                    byte[] extendedMessage = createExtendedMessage(command, nonce);
-                    byte[] encryptedMessage = CHACHAencrypt(extendedMessage, secretKey, nonce);
+                    byte[] commandByte = command.getBytes(StandardCharsets.UTF_8);
 
-                    ctx.writeAndFlush(encryptedMessage); // 直接通过 ctx 发送命令
-                    System.out.println("Command sent to client " + deviceName + ": " + command);
+                    byte[] encryptedCommand = CHACHAencrypt(commandByte, secretKey, nonce);
+                    byte[] Message = createExtendedMessage(encryptedCommand, nonce);
+
+                    ctx.writeAndFlush(Message); // 直接通过 ctx 发送命令
+                    System.out.println("Command sent to " + deviceName + ": " + command);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break; // 线程被中断，退出循环
@@ -278,12 +282,11 @@ public class GatewayServerii {
 
         return secretKey;
     }
-    private static byte[] createExtendedMessage(String deviceName, byte[] nonce) {
-        byte[] deviceNameBytes = deviceName.getBytes(StandardCharsets.UTF_8);
+    private static byte[] createExtendedMessage(byte[] command, byte[] nonce) {
 
-        ByteBuffer buffer = ByteBuffer.allocate( deviceNameBytes.length + nonce.length);
+        ByteBuffer buffer = ByteBuffer.allocate( command.length + nonce.length);
         buffer.put(nonce);
-        buffer.put(deviceNameBytes);
+        buffer.put(command);
 
         return buffer.array();
     }

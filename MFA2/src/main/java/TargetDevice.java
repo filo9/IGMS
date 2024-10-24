@@ -2,6 +2,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.security.Security;
+import java.util.Enumeration;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -28,13 +29,17 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.security.SecureRandom;
 import javax.crypto.spec.IvParameterSpec;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.*;
+
 
 public class TargetDevice {
     private static SecretKey CHACHAKey;
     private static final int TLS_PORT = 12346; // 与服务端的TLS连接端口
     private static final String TRUSTSTORE_FILE = "clienttruststore.jks"; // 信任库文件
     private static final String TRUSTSTORE_PASSWORD = "password"; // 信任库密码
-    private static final String DEVICE_NAME = "TV";
+    private static String DEVICE_NAME = "TV";
     private static final String RECEIVED_KEYS_DIR = "received_keys";
     private static final String GATEWAY_PUBLIC_KEY_FILE = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";
     private static final String CLIENT_PRIVATE_KEY_FILE = RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
@@ -43,6 +48,7 @@ public class TargetDevice {
     public static void main(String[] args) {
 
         try {
+            Security.addProvider(new BouncyCastleProvider());
             // 初始化 KeyStore
             KeyStore trustStore = KeyStore.getInstance("JKS");
             try (FileInputStream trustStoreStream = new FileInputStream(TRUSTSTORE_FILE)) {
@@ -99,7 +105,8 @@ public class TargetDevice {
             byte[] nonce = extractPart(msg, 0, 12);  // 假设接下来12字节为nonce
             byte[] encryptedCommand = extractPart(msg, 12, msg.length - 12); // 剩余为加密的消息
             byte[] command = CHACHAdecrypt(encryptedCommand, CHACHAKey, nonce);
-            System.out.println("Received command: " + command);
+            String commandString = new String(command, StandardCharsets.UTF_8);
+            active(commandString);
         }
 
         @Override
@@ -137,7 +144,8 @@ public class TargetDevice {
                 byte[] encryptedCHACHAKey = encryptCHAHCAKeyWithPublicKey(CHACHAKey.getEncoded(), gatewayPublicKey);
 
                 // 将密钥、nonce和加密消息发送给服务端
-                ByteBuffer buffer = ByteBuffer.allocate(encryptedCHACHAKey.length + nonce.length + encryptedMessage.length);
+                ByteBuffer buffer = ByteBuffer.allocate(1 + encryptedCHACHAKey.length + nonce.length + encryptedMessage.length);
+                buffer.put((byte) encryptedCHACHAKey.length);
                 buffer.put(encryptedCHACHAKey);
                 buffer.put(nonce);
                 buffer.put(encryptedMessage);
@@ -244,10 +252,10 @@ public class TargetDevice {
     public static void setCHACHAKey(SecretKey newKey) {
         CHACHAKey = newKey;
     }
-
-}
-
- /*private static InetAddress getServerAddress() {
+    private static void active(String command) {
+        System.out.println("执行命令:" + command);
+    }
+    private static InetAddress getServerAddress() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
@@ -269,4 +277,10 @@ public class TargetDevice {
             e.printStackTrace();
         }
         return null;
-    }*/
+    }
+    public static void setDeviceName(String newDeviceName) {
+        DEVICE_NAME = newDeviceName;
+    }
+}
+
+ /**/
