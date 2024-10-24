@@ -151,8 +151,7 @@ public class TargetDevice {
                 buffer.put(encryptedMessage);
 
                 ctx.writeAndFlush(buffer.array());
-                System.out.println(DEVICE_NAME + " connected to server.");
-                System.out.println(DEVICE_NAME + " sent encrypted key and message to server.");
+                System.out.println(DEVICE_NAME + "连接到服务器");
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -83,7 +83,7 @@ public class GatewayServerii {
                     });
 
             ChannelFuture f = b.bind(TLS_PORT).sync();
-            System.out.println("TLS Server started on port " + TLS_PORT);
+            System.out.println("网关发送服务器已启动，端口号12346，等待设备端连接...");
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
@@ -126,9 +126,9 @@ public class GatewayServerii {
                 commandQueues.put(deviceName, new LinkedBlockingQueue<>());
                 // 启动命令处理线程
                 commandExecutor.submit(() -> processCommands(deviceName, ctx));
-                System.out.println(deviceName + "connected!");
+                System.out.println(deviceName + "已连接!");
             } else {
-                System.out.println("Signature verification failed for " + deviceName);
+                System.out.println("签名验证失败的设备: " + deviceName);
             }
         }
 
@@ -149,13 +149,13 @@ public class GatewayServerii {
                     byte[] Message = createExtendedMessage(encryptedCommand, nonce);
 
                     ctx.writeAndFlush(Message); // 直接通过 ctx 发送命令
-                    System.out.println("Command sent to " + deviceName + ": " + command);
+                    System.out.println("发送命令到设备:" + deviceName + ": " + command);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break; // 线程被中断，退出循环
                 }catch (Exception e) {
                     // 捕获其他所有异常
-                    System.err.println("Error processing command for device: " + e.getMessage());
+                    System.err.println("错误的进程命令: " + e.getMessage());
                     e.printStackTrace(); // 打印完整的异常堆栈跟踪
                 }
             }
@@ -170,7 +170,7 @@ public class GatewayServerii {
 
     private void listenForCommands() {
         try (var commandSocket = new java.net.ServerSocket(COMMAND_PORT)) {
-            System.out.println("Command listener started on port " + COMMAND_PORT);
+            System.out.println("命令转发端口: " + COMMAND_PORT);
             while (true) {
                 try (var socket = commandSocket.accept();
                      BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
@@ -192,13 +192,13 @@ public class GatewayServerii {
         BlockingQueue<String> commandQueue = commandQueues.get(deviceName);
         if (commandQueue != null) {
             try {
-                System.out.println("Command added to queue for client " + deviceName + ": " + command);
+                System.out.println("命令已加入队列" + deviceName + ": " + command);
                 commandQueue.put(command);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("No client connected with name: " + deviceName);
+            System.out.println("没有设备名为: " + deviceName);
         }
     }
     private static byte[] CHACHAencrypt(byte[] plaintext, SecretKey key, byte[] nonce) throws Exception {
@@ -276,7 +276,7 @@ public class GatewayServerii {
         SecretKey secretKey = deviceKeys.get(deviceName);
 
         if (secretKey == null) {
-            System.out.println("No key found for device: " + deviceName);
+            System.out.println("没有注册的设备: " + deviceName);
             return null;
         }
 

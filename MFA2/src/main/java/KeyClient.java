@@ -36,7 +36,7 @@ public class KeyClient {
    sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
 
    // 获取服务器的 IP 地址
-   InetAddress serverAddress = InetAddress.getByName("192.168.1.101");//getServerAddress();
+   InetAddress serverAddress = InetAddress.getByName("127.0.0.1");//getServerAddress();
    if (serverAddress == null) {
     System.out.println("无法获取服务器地址。");
     return;
