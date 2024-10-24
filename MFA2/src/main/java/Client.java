@@ -20,7 +20,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.io.ByteArrayOutputStream;
 
 public class Client {
@@ -28,7 +27,7 @@ public class Client {
     private static final String TRUSTSTORE_FILE = "clienttruststore.jks";
     private static final String TRUSTSTORE_PASSWORD = "password";
     private static final String RECEIVED_KEYS_DIR = "received_keys";
-    private static final String DEVICE_NAME = "user";
+    private static String DEVICE_NAME = "user";
     private static final String TARGET_DEVICE_NAME = "TV";
     private static final String COMMAND = "turn on";
     private static final String GATEWAY_PUBLIC_KEY_FILE = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";
@@ -224,4 +223,8 @@ public class Client {
         }
         return null;
     }
+    public static void setDeviceName(String newDeviceName) {
+        DEVICE_NAME = newDeviceName;
+    }
+
 }
