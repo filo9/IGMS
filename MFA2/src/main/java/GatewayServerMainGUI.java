@@ -7,7 +7,7 @@ import java.io.PrintStream;
 public class GatewayServerMainGUI {
     private JFrame frame;
     private JTextArea logArea;
-    private JButton startServersButton, stopServersButton;
+    private JButton toggleServersButton;  // 按钮声明为类的成员变量
 
     // 服务线程
     private Thread adminThread, gatewayServerThread, gatewayServeriiThread;
@@ -17,12 +17,12 @@ public class GatewayServerMainGUI {
     }
 
     private void createAndShowGUI() {
-        // 创建主窗口
         frame = new JFrame("网关服务器管理");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
+        frame.setUndecorated(true);
 
-        // 设置日志输出重定向
+        // 重定向 System.out 和 System.err
         redirectSystemStreams();
 
         // 设置渐变背景
@@ -31,74 +31,73 @@ public class GatewayServerMainGUI {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                GradientPaint gradientPaint = new GradientPaint(0, 0, Color.LIGHT_GRAY, 0, getHeight(), Color.WHITE);
+                GradientPaint gradientPaint = new GradientPaint(
+                        0, 0, new Color(64, 64, 64),  // 暗灰色
+                        0, getHeight(), Color.BLACK); // 渐变到黑色
                 g2d.setPaint(gradientPaint);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         });
+
         frame.setLayout(new BorderLayout());
 
         // 日志显示区域
         logArea = new JTextArea();
         logArea.setEditable(false);
+        logArea.setBackground(Color.BLACK);
+        logArea.setForeground(Color.WHITE);
+        logArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+
+        // JScrollPane 设置
         JScrollPane scrollPane = new JScrollPane(logArea);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());  // 移除默认边框
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // 控制面板
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new GridLayout(1, 2, 10, 10));
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        controlPanel.setBackground(new Color(64, 64, 64));  // 暗灰色背景
+        controlPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));  // 设置边框为零
 
-        // 启动按钮: 淡蓝色背景，白色字体
-        startServersButton = createButton("启动所有服务器", e -> startAllServers(), new Color(173, 216, 230), Color.WHITE);
-        // 停止按钮: 灰色背景，黄色字体
-        stopServersButton = createButton("停止所有服务器", e -> stopAllServers(), Color.GRAY, Color.YELLOW);
-
-        controlPanel.add(startServersButton);
-        controlPanel.add(stopServersButton);
+        // 创建按钮（切换启动/停止状态）
+        toggleServersButton = createButton("启动", e -> toggleServers(),
+                new Color(173, 216, 230), Color.WHITE);
+        controlPanel.add(toggleServersButton);
 
         frame.add(controlPanel, BorderLayout.SOUTH);
 
-        // 设置窗口居中
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        frame.setVisible(true);
+        makeFrameDraggable();  // 使窗口可拖动
     }
 
-    // 创建按钮的通用方法（增加了背景色和字体色参数）
     private JButton createButton(String text, ActionListener actionListener, Color bgColor, Color fgColor) {
         JButton button = new JButton(text);
         button.addActionListener(actionListener);
         button.setBackground(bgColor);
         button.setForeground(fgColor);
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFont(new Font("Microsoft YaHei", Font.BOLD, 14));
         button.setBorder(BorderFactory.createRaisedBevelBorder());
+
+        // 设置按钮尺寸
+        button.setPreferredSize(new Dimension(80, 60));
         return button;
     }
 
-    // 日志输出
-    private void log(String message) {
-        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+    private void toggleServers() {
+        if (toggleServersButton.getText().equals("启动")) {
+            startAllServers();
+            toggleServersButton.setText("停止");
+            toggleServersButton.setBackground(new Color(211, 211, 211));
+            toggleServersButton.setForeground(new Color(255, 102, 102));
+        } else {
+            stopAllServers();
+            toggleServersButton.setText("启动");
+            toggleServersButton.setBackground(new Color(173, 216, 230));
+            toggleServersButton.setForeground(Color.WHITE);
+        }
     }
 
-    // 重定向System.out和System.err到logArea
-    private void redirectSystemStreams() {
-        OutputStream out = new OutputStream() {
-            @Override
-            public void write(int b) {
-                logArea.append(String.valueOf((char) b));
-            }
-
-            @Override
-            public void write(byte[] b, int off, int len) {
-                logArea.append(new String(b, off, len));
-            }
-        };
-
-        System.setOut(new PrintStream(out, true));
-        System.setErr(new PrintStream(out, true));
-    }
-
-    // 启动所有服务
     private void startAllServers() {
         if (adminThread == null || !adminThread.isAlive()) {
             adminThread = new Thread(() -> {
@@ -140,8 +139,53 @@ public class GatewayServerMainGUI {
         }
     }
 
-    // 停止所有服务
     private void stopAllServers() {
         System.exit(0);  // 停止所有服务并退出程序
     }
+
+    private void log(String message) {
+        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+    }
+
+    private void redirectSystemStreams() {
+        OutputStream out = new OutputStream() {
+            @Override
+            public void write(int b) {
+                logArea.append(String.valueOf((char) b));
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) {
+                logArea.append(new String(b, off, len));
+            }
+        };
+
+        System.setOut(new PrintStream(out, true));
+        System.setErr(new PrintStream(out, true));
+    }
+    private Point initialClick;
+
+    private void makeFrameDraggable() {
+        frame.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                initialClick = e.getPoint();
+            }
+        });
+
+        frame.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent e) {
+                // 获取当前窗口的位置
+                int thisX = frame.getLocation().x;
+                int thisY = frame.getLocation().y;
+
+                // 计算新的位置
+                int newX = thisX + e.getX() - initialClick.x;
+                int newY = thisY + e.getY() - initialClick.y;
+
+                // 设置新位置
+                frame.setLocation(newX, newY);
+            }
+        });
+    }
+
 }
