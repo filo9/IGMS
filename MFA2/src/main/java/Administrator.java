@@ -8,7 +8,9 @@ import java.security.PublicKey;
 import java.util.Base64;
 
 public class Administrator {
+ private static SSLServerSocket serverSocket;
  private static final int PORT = 12344;
+ private static boolean running = true;
  private static final String KEYSTORE_FILE = "serverkeystore.jks";
  private static final String KEYSTORE_PASSWORD = "password";
  private static final String KEY_PASSWORD = "password";
@@ -33,10 +35,11 @@ public class Administrator {
 
    // 创建SSLServerSocket
    SSLServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
-   try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(PORT)) {
+   try (SSLServerSocket serverSocketTemp = (SSLServerSocket) serverSocketFactory.createServerSocket(PORT)) {
+    serverSocket = serverSocketTemp;
     System.out.println("网关注册服务器已启动，端口号12344，等待客户端连接...");
 
-    while (true) {
+    while (running) {
      try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
       System.out.println("客户端已连接：" + clientSocket.getInetAddress());
 
@@ -71,12 +74,18 @@ public class Administrator {
        savePublicKey(publicKey, publicKeyFilePath);
       }
      } catch (IOException e) {
-      e.printStackTrace();
+      if (running) {  // 只有在非手动停止时才打印错误
+       e.printStackTrace();
+      } else {
+       System.out.println("服务器停止");
+      }
      }
     }
    }
   } catch (Exception e) {
    e.printStackTrace();
+  }finally {
+   stop(); // Ensure cleanup on exit
   }
  }
 
@@ -130,6 +139,15 @@ public class Administrator {
   String pemKey = "-----BEGIN PUBLIC KEY-----\n" + new String(encodedKey) + "\n-----END PUBLIC KEY-----";
   Files.write(Paths.get(filePath), pemKey.getBytes());
  }
-
+ public static void stop() {
+  running = false;
+  try {
+   if (serverSocket != null && !serverSocket.isClosed()) {
+    serverSocket.close();  // 关闭服务器套接字
+   }
+  } catch (IOException e) {
+   e.printStackTrace();
+  }
+ }
 
 }

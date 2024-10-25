@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 public class Device {
-    private static String DEVICE_NAME = "TV";
+    private static String DEVICE_NAME = "电子门";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

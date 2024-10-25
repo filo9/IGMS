@@ -42,7 +42,10 @@ public class GatewayServerii {
     private Map<String, SecretKey> deviceKeys = new HashMap<>();// 存储设备名与其对应的ChaCha20密钥
     private Map<String, BlockingQueue<String>> commandQueues = new HashMap<>(); // 用于存储命令队列
     private ExecutorService commandExecutor = Executors.newFixedThreadPool(10); // 线程池处理命令
-
+    private static Channel serverChannel; // 保存服务器的 Channel
+    private static EventLoopGroup bossGroup;
+    private static EventLoopGroup workerGroup;
+    private static boolean running = true;
     public static void main(String[] args) throws Exception {
         Security.addProvider(new BouncyCastleProvider());
         GatewayServerii server = new GatewayServerii();
@@ -65,8 +68,8 @@ public class GatewayServerii {
         new Thread(this::listenForCommands).start();
 
         // 设置 Netty 服务器
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -83,6 +86,7 @@ public class GatewayServerii {
                     });
 
             ChannelFuture f = b.bind(TLS_PORT).sync();
+            serverChannel = f.channel();// 保存 Channel
             System.out.println("网关发送服务器已启动，端口号12346，等待设备端连接...");
             f.channel().closeFuture().sync();
         } finally {
@@ -171,7 +175,7 @@ public class GatewayServerii {
     private void listenForCommands() {
         try (var commandSocket = new java.net.ServerSocket(COMMAND_PORT)) {
             System.out.println("命令转发端口: " + COMMAND_PORT);
-            while (true) {
+            while (running) {
                 try (var socket = commandSocket.accept();
                      BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
@@ -289,5 +293,17 @@ public class GatewayServerii {
         buffer.put(command);
 
         return buffer.array();
+    }
+    public static void stop() {
+        if (serverChannel != null) {
+            serverChannel.close(); // 关闭 Netty 服务器
+        }
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
+        }
+        running = false;
     }
 }

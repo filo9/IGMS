@@ -15,6 +15,7 @@ public class GatewayServerMain {
   Thread gatewayServerThread = new Thread(() -> {
    try {
     GatewayServer.main(null);
+    GatewayServer.stop();
    } catch (Exception e) {
     e.printStackTrace();
    }

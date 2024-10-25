@@ -27,9 +27,9 @@ public class Client {
     private static final String TRUSTSTORE_FILE = "clienttruststore.jks";
     private static final String TRUSTSTORE_PASSWORD = "password";
     private static final String RECEIVED_KEYS_DIR = "received_keys";
-    private static String DEVICE_NAME = "user";
-    private static String TARGET_DEVICE_NAME = "TV";
-    private static  String COMMAND = "turn on";
+    private static String DEVICE_NAME = "";
+    private static String TARGET_DEVICE_NAME = "";
+    private static  String COMMAND = "";
     private static final String GATEWAY_PUBLIC_KEY_FILE = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";
     private static final String CLIENT_PRIVATE_KEY_FILE = RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
     private static final int AES_KEY_SIZE = 128;
@@ -53,7 +53,7 @@ public class Client {
             byte[] messageHash = hashMessage(combinedMessage);
 
             // 3. 使用设备私钥对哈希值生成报文鉴别码 (MAC)
-            PrivateKey clientPrivateKey = loadPrivateKey(CLIENT_PRIVATE_KEY_FILE);
+            PrivateKey clientPrivateKey = loadPrivateKey(getClientPrivateKeyFile());
             byte[] mac = signMessage(messageHash, clientPrivateKey);
             // 4. 创建时间戳，并拼接扩展消息 (设备名称、命令、时间戳、MAC)
             long timestamp = System.currentTimeMillis();
@@ -226,11 +226,14 @@ public class Client {
     public static void setDeviceName(String newDeviceName) {
         DEVICE_NAME = newDeviceName;
     }
-    public static void setTargetDeviceName(String newDeviceName) {
-        TARGET_DEVICE_NAME = newDeviceName;
+    public static void setTargetDeviceName(String newTargeDeviceName) {
+        TARGET_DEVICE_NAME = newTargeDeviceName;
     }
     public static void setCommand(String newCommand) {
         COMMAND = newCommand;
+    }
+    private static String getClientPrivateKeyFile() {
+        return RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
     }
 
 }

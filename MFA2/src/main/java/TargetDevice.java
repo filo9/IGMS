@@ -39,7 +39,7 @@ public class TargetDevice {
     private static final int TLS_PORT = 12346; // 与服务端的TLS连接端口
     private static final String TRUSTSTORE_FILE = "clienttruststore.jks"; // 信任库文件
     private static final String TRUSTSTORE_PASSWORD = "password"; // 信任库密码
-    private static String DEVICE_NAME = "TV";
+    private static String DEVICE_NAME = "";
     private static final String RECEIVED_KEYS_DIR = "received_keys";
     private static final String GATEWAY_PUBLIC_KEY_FILE = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";
     private static final String CLIENT_PRIVATE_KEY_FILE = RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
@@ -123,7 +123,7 @@ public class TargetDevice {
                 setCHACHAKey(deriveKey(masterKey));
 
                 // 加载ECC密钥
-                PrivateKey clientPrivateKey = loadPrivateKey(CLIENT_PRIVATE_KEY_FILE);
+                PrivateKey clientPrivateKey = loadPrivateKey(getClientPrivateKeyFile());
                 PublicKey gatewayPublicKey = loadPublicKey(GATEWAY_PUBLIC_KEY_FILE);
 
                 // 使用设备私钥对设备名进行签名
@@ -279,6 +279,9 @@ public class TargetDevice {
     }
     public static void setDeviceName(String newDeviceName) {
         DEVICE_NAME = newDeviceName;
+    }
+    private static String getClientPrivateKeyFile() {
+        return RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
     }
 }
 

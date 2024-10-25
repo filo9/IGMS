@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
 public class User {
-    private static String DEVICE_NAME = "user";
-    private static String TARGET_DEVICE_NAME = "TV";
-    private static  String COMMAND = "turn on";
+    private static String DEVICE_NAME = "卓爱同学";
+    private static String TARGET_DEVICE_NAME = "电子门";
+    private static  String COMMAND = "开门";
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;

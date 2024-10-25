@@ -21,6 +21,7 @@ import java.net.Socket;
 public class GatewayServer {
     private static final int PORT = 12345;
     private static final int COMMAND_PORT = 5555;
+    private static boolean running = true;
     private static final String GATEWAY_PRIVATE_KEY_FILE = "GatewayServerPrivateKey.pem";
     private static final long TIMESTAMP_VALIDITY_PERIOD = 5 * 60 * 1000; // 5 minutes
     private static final String KEYSTORE_FILE = "serverkeystore.jks";
@@ -52,7 +53,7 @@ public class GatewayServer {
             try (SSLServerSocket serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(PORT)) {
                 System.out.println("网关转发服务器已启动，端口号12345，等待用户端连接...");
 
-                while (true) {
+                while (running) {
                     try (SSLSocket clientSocket = (SSLSocket) serverSocket.accept()) {
                         System.out.println("客户端已连接：" + clientSocket.getInetAddress());
 
@@ -274,5 +275,8 @@ public class GatewayServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public static void stop() {
+        running = false;
     }
 }
