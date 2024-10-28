@@ -1,0 +1,2 @@
+SSID: MyWiFi
+Password: 12345678

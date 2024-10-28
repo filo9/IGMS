@@ -51,6 +51,8 @@ public class GatewayServerMainGUI {
         // JScrollPane 设置
         JScrollPane scrollPane = new JScrollPane(logArea);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());  // 移除默认边框
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); // 移除垂直滚动条
+        scrollPane.setPreferredSize(new Dimension(600, 300)); // 设置日志区域的大小
         frame.add(scrollPane, BorderLayout.CENTER);
 
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -65,7 +67,6 @@ public class GatewayServerMainGUI {
         frame.add(controlPanel, BorderLayout.SOUTH);
 
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
         frame.setVisible(true);
         makeFrameDraggable();  // 使窗口可拖动
     }
@@ -144,7 +145,10 @@ public class GatewayServerMainGUI {
     }
 
     private void log(String message) {
-        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+        SwingUtilities.invokeLater(() -> {
+            logArea.append(message + "\n");
+            logArea.setCaretPosition(logArea.getDocument().getLength()); // 自动滚动到底部
+        });
     }
 
     private void redirectSystemStreams() {
@@ -152,17 +156,20 @@ public class GatewayServerMainGUI {
             @Override
             public void write(int b) {
                 logArea.append(String.valueOf((char) b));
+                logArea.setCaretPosition(logArea.getDocument().getLength()); // 自动滚动到底部
             }
 
             @Override
             public void write(byte[] b, int off, int len) {
                 logArea.append(new String(b, off, len));
+                logArea.setCaretPosition(logArea.getDocument().getLength()); // 自动滚动到底部
             }
         };
 
         System.setOut(new PrintStream(out, true));
         System.setErr(new PrintStream(out, true));
     }
+
     private Point initialClick;
 
     private void makeFrameDraggable() {
@@ -187,5 +194,4 @@ public class GatewayServerMainGUI {
             }
         });
     }
-
 }
