@@ -32,7 +32,9 @@ import javax.crypto.spec.IvParameterSpec;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.*;
-
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class TargetDevice {
     private static SecretKey CHACHAKey;
@@ -251,9 +253,17 @@ public class TargetDevice {
     public static void setCHACHAKey(SecretKey newKey) {
         CHACHAKey = newKey;
     }
-    private static void active(String command) {
-        System.out.println("执行命令:" + command);
+    public static void active(String command) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("pipe_"+ DEVICE_NAME +".txt",true))) {
+            writer.write(command);
+            writer.newLine();
+            writer.flush();
+            System.out.println("命令已发送：" + command);
+        } catch (IOException e) {
+            System.err.println("写入命令失败：" + e.getMessage());
+        }
     }
+
     private static InetAddress getServerAddress() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();

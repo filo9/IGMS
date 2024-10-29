@@ -2,15 +2,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ElectronicDoorGUI {
  private JFrame frame;
+ private static final String PIPE_FILE_PATH = "pipe_ElectronicDoor.txt"; // 管道文件路径
+
+ private static final String DEVICE  = "ElectronicDoor";
  private JTextArea displayArea;
  private JTextArea statusArea;
  private JPanel buttonPanel;
  private JButton enterButton; // 将 Enter 按钮设为类成员变量
  private final String PASSWORD_FILE = "password.txt";
  private Point initialClick;
+ private final Object lock = new Object();
 
  public ElectronicDoorGUI() {
   createAndShowGUI();
@@ -105,7 +111,7 @@ public class ElectronicDoorGUI {
    JButton button = new JButton(String.valueOf(i));
    button.setFont(new Font("Monospaced", Font.PLAIN, 50));
    button.setBackground(new Color(70, 70, 70));
-   button.setForeground(Color.WHITE);
+   button.setForeground(Color.black);
    button.addActionListener(new ButtonClickListener());
    buttonPanel.add(button);
   }
@@ -113,14 +119,14 @@ public class ElectronicDoorGUI {
   enterButton = new JButton("开锁"); // 初始状态为“开锁”
   enterButton.setFont(new Font("Monospaced", Font.PLAIN, 30));
   enterButton.setBackground(new Color(70, 70, 70));
-  enterButton.setForeground(Color.WHITE);
+  enterButton.setForeground(Color.black);
   enterButton.addActionListener(new EnterButtonClickListener());
   buttonPanel.add(enterButton);
 
   JButton backButton = new JButton("←");
   backButton.setFont(new Font("Monospaced", Font.PLAIN, 60));
   backButton.setBackground(new Color(70, 70, 70));
-  backButton.setForeground(Color.WHITE);
+  backButton.setForeground(Color.black);
   backButton.addActionListener(new BackButtonClickListener());
   buttonPanel.add(backButton);
  }
@@ -240,8 +246,84 @@ public class ElectronicDoorGUI {
    component.setEnabled(enabled); // 设置按钮启用或禁用状态
   }
  }
+ // 直接开门
+ public void openDoor() {
+  if ("关闭".equals(statusArea.getText())) {
+   statusArea.setText("开启");
+   enterButton.setText("锁定");
+  }
+ }
+
+ // 直接关门
+ public void closeDoor() {
+  if ("开启".equals(statusArea.getText())) {
+   statusArea.setText("关闭");
+   enterButton.setText("开锁");
+  }
+ }
+
+ // 修改密码
+ public void changePassword(String newPassword) {
+  if (newPassword.matches("\\d{8}")) { // 检查是否为8位数字
+   try (BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORD_FILE))) {
+    writer.write(newPassword);
+    statusArea.setText("密码已更新");
+    setButtonsEnabled(false); // 禁用按钮
+    startErrorTimer(); // 启动计时器，2秒后恢复
+    enterButton.setText("锁定");
+   } catch (IOException e) {
+    statusArea.setText("修改密码失败");
+    setButtonsEnabled(false); // 禁用按钮
+    startErrorTimer(); // 启动计时器，2秒后恢复
+    enterButton.setText("锁定");
+    e.printStackTrace();
+   }
+  } else {
+   statusArea.setText("密码无效，需为8位数字");
+   setButtonsEnabled(false); // 禁用按钮
+   startErrorTimer(); // 启动计时器，2秒后恢复
+   enterButton.setText("锁定");
+  }
+ }
+ private void clearFileContents() throws IOException {
+  synchronized (lock) {
+   Files.write(Paths.get(PIPE_FILE_PATH), new byte[0]); // 清空文件内容
+  }
+ }
 
  public static void main(String[] args) {
-  SwingUtilities.invokeLater(ElectronicDoorGUI::new);
+  ElectronicDoorGUI gui = new ElectronicDoorGUI();
+
+  new Thread(() -> {
+   try (BufferedReader reader = new BufferedReader(new FileReader(PIPE_FILE_PATH))) {
+    String line;
+
+    while (true) {
+     while ((line = reader.readLine()) != null) {
+      synchronized (gui.lock) {
+       switch (line) {
+        case "OPEN":
+         gui.openDoor();
+         break;
+        case "CLOSE":
+         gui.closeDoor();
+         break;
+        case "CHANGE":
+         gui.changePassword("12345678");
+         break;
+        default:
+         System.out.println("未知命令: " + line);
+         break;
+       }
+       gui.clearFileContents(); // 每次处理完命令后清空文件内容
+      }
+     }
+     Thread.sleep(1000); // 每秒检查一次文件内容
+    }
+   } catch (IOException | InterruptedException e) {
+    e.printStackTrace();
+   }
+  }).start();
  }
 }
+

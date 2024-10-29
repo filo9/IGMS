@@ -2,8 +2,8 @@ import java.util.Scanner;
 
 public class User {
     private static String DEVICE_NAME = "卓爱同学";
-    private static String TARGET_DEVICE_NAME = "电子门";
-    private static  String COMMAND = "开门";
+    private static String TARGET_DEVICE_NAME = "ElectronicDoor";
+    private static  String COMMAND = "CLOSE";
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
