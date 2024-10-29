@@ -189,6 +189,9 @@ public class DeviceGUI{
     case "ElectronicDoor":
      ElectronicDoorGUI.main(null);
      break;
+    case "Light":
+     Light_GUI.main(null);
+     break;
     default:
      System.out.println("Unknown device");
      break;

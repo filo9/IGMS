@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>uk.co.caprica</groupId>
+            <artifactId>vlcj</artifactId>
+            <version>4.7.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>4.1.68.Final</version> <!-- 或者选择其他版本 -->
