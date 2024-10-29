@@ -41,24 +41,19 @@ public class KeyClient {
     System.out.println("无法获取服务器地址。");
     return;
    }
-   System.out.println("服务器地址: " + serverAddress.getHostAddress());
 
    // 创建 SSLSocket
    SSLSocketFactory socketFactory = sslContext.getSocketFactory();
    try (SSLSocket socket = (SSLSocket) socketFactory.createSocket(serverAddress, PORT)) {
-    System.out.println("连接到服务器: " + socket.getInetAddress());
 
     // 发送设备名称
     String deviceName = DEVICE_NAME;
-    System.out.println("设备名称: " + deviceName);
     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
     out.println(deviceName);
-    System.out.println("发送设备名称: " + deviceName);
-
+    System.out.println("已发送注册请求!");
     // 接收私钥
     ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
     PrivateKey privateKey = (PrivateKey) in.readObject();
-    System.out.println("接收到私钥: " + privateKey);
 
     // 保存私钥
     String privateKeyFilePath = RECEIVED_KEYS_DIR + "/clientPrivateKey_" + deviceName + ".pem";
@@ -68,7 +63,6 @@ public class KeyClient {
     // 接收网关服务器公钥
     ObjectInputStream in2 = new ObjectInputStream(socket.getInputStream());
     PublicKey gatewayServerPublicKey = (PublicKey) in2.readObject();
-    System.out.println("接收到网关服务器公钥: " + gatewayServerPublicKey);
 
     // 保存公钥
     String publicKeyFilePath = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";

@@ -42,8 +42,8 @@ public class TargetDevice {
     private static String DEVICE_NAME = "";
     private static final String RECEIVED_KEYS_DIR = "received_keys";
     private static final String GATEWAY_PUBLIC_KEY_FILE = RECEIVED_KEYS_DIR + "/GatewayServerPublicKey.pem";
-    private static final String CLIENT_PRIVATE_KEY_FILE = RECEIVED_KEYS_DIR + "/clientPrivateKey_" + DEVICE_NAME + ".pem";
     private static final int CHACHA20_KEY_SIZE = 32;
+
 
     public static void main(String[] args) {
 
