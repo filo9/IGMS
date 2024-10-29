@@ -1,0 +1,14 @@
+livingRoomLight TURN
+bathroomLight UP
+bedroomLight DOWN
+livingRoomLight UP
+livingRoomLight DOWN
+livingRoomLight TURN
+livingRoomLight TURN
+livingRoomLight TURN
+livingRoomLight UP
+livingRoomLight TURN
+bathroomLight DOWN
+bedroomLight DOWN
+bedroomLight UP
+bathroomLight UP

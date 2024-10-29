@@ -190,7 +190,10 @@ public class DeviceGUI{
      ElectronicDoorGUI.main(null);
      break;
     case "Light":
-     Light_GUI.main(null);
+     LightGUI.main(null);
+     break;
+    case "AirConditioner":
+     AirConditionerGUI.main(null);
      break;
     default:
      System.out.println("Unknown device");

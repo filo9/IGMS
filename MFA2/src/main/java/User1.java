@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class User {
+public class User1 {
     private static String DEVICE_NAME = "卓爱同学";
     private static String TARGET_DEVICE_NAME = "ElectronicDoor";
 
@@ -54,7 +54,7 @@ public class User {
 
                 case 4:
                     running = false;
-                    System.out.println("退出程序。");
+                    System.out.println("退出。");
                     break;
 
                 default:
@@ -62,9 +62,11 @@ public class User {
                     continue;
             }
 
-            Client.setDeviceName(DEVICE_NAME); // 修改用户名
-            Client.setTargetDeviceName(TARGET_DEVICE_NAME); // 修改TargetDevice设备名
-            Client.main(null); // 启动TargetDevice
+            if (running) { // 只有在不退出的情况下才调用 Client
+                Client.setDeviceName(DEVICE_NAME); // 修改用户名
+                Client.setTargetDeviceName(TARGET_DEVICE_NAME); // 修改TargetDevice设备名
+                Client.main(null); // 启动TargetDevice
+            }
         }
 
         scanner.close(); // 关闭扫描器
