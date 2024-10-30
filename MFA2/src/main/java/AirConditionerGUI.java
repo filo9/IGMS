@@ -82,7 +82,7 @@ public class AirConditionerGUI extends JFrame {
   turnOffButton = new JButton("关机");
   turnOffButton.setFont(new Font("Monospaced", Font.BOLD, 16));
   turnOffButton.setBackground(new Color(255, 120, 120)); // 红色背景
-  turnOffButton.setForeground(Color.WHITE);
+  turnOffButton.setForeground(Color.BLACK);
   turnOffButton.setFocusPainted(false);
   turnOffButton.addActionListener(e -> turnOff());
 
@@ -114,7 +114,7 @@ public class AirConditionerGUI extends JFrame {
  private void configureButton(JButton button) {
   button.setFont(new Font("Monospaced", Font.BOLD, 16));
   button.setBackground(new Color(70, 70, 70)); // 更深的灰色
-  button.setForeground(Color.WHITE);
+  button.setForeground(Color.black);
   button.setFocusPainted(false);
   button.addActionListener(e -> {
    if (button == speedUpButton) {

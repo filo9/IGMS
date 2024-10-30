@@ -156,18 +156,18 @@ public class LightGUI {
  public static void main(String[] args) {
   SwingUtilities.invokeLater(() -> {
    // 创建三个房间的灯窗口
-   LightWindow livingRoomLight = new LightWindow("livingRoomLight", Color.WHITE);
+   LightWindow livingRoomLight = new LightWindow("客厅灯", Color.WHITE);
    livingRoomLight.setLocation(100, 100);
    livingRoomLight.setVisible(true);
    lightWindows.put(livingRoomLight.getNameLabel(), livingRoomLight);
 
-   LightWindow bedroomLight = new LightWindow("bedroomLight", new Color(255, 182, 193));
+   LightWindow bedroomLight = new LightWindow("卧室灯", new Color(255, 182, 193));
    bedroomLight.setLocation(420, 100);
    bedroomLight.setVisible(true);
    lightWindows.put(bedroomLight.getNameLabel(), bedroomLight);
    bedroomLight.toggleLight();
 
-   LightWindow bathroomLight = new LightWindow("bathroomLight", Color.YELLOW);
+   LightWindow bathroomLight = new LightWindow("卫生间灯", Color.YELLOW);
    bathroomLight.setLocation(740, 100);
    bathroomLight.setVisible(true);
    lightWindows.put(bathroomLight.getNameLabel(), bathroomLight);

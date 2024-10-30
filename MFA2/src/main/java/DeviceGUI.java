@@ -146,6 +146,7 @@ public class DeviceGUI{
    writer.write("SSID: " + ssid + "\n");
    writer.write("Password: " + password + "\n");
    log("Wi-Fi 信息已保存。");
+   //WifiConnector.main(null);
   } catch (IOException ex) {
    ex.printStackTrace();
    JOptionPane.showMessageDialog(null, "保存 Wi-Fi 信息失败", "错误", JOptionPane.ERROR_MESSAGE);
