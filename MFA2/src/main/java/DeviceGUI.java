@@ -138,7 +138,7 @@ public class DeviceGUI{
  // 蓝牙配对功能
  private static void performBluetoothPairing() {
   // 模拟 Wi-Fi 账户信息
-  String ssid = "MyWiFi";
+  String ssid = "WiFi";
   String password = "12345678";
 
   // 将 Wi-Fi 信息保存到文件
