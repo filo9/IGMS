@@ -1,61 +1,63 @@
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class User3 {
+public class User3 extends JFrame {
  private static String DEVICE_NAME = "卓爱同学";
  private static String TARGET_DEVICE_NAME = "AirConditioner";
 
+ public User3() {
+  setTitle("空调控制系统");
+  setSize(400, 400);
+  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  setLocationRelativeTo(null); // 窗口居中显示
+
+  // 创建主面板，使用GridLayout排列按钮
+  JPanel panel = new JPanel();
+  panel.setLayout(new GridLayout(7, 1, 10, 10)); // 7行1列，间距10px
+
+  // 创建控制按钮
+  JButton switchModeButton = new JButton("切换模式");
+  JButton increaseTempButton = new JButton("升高温度 (+5)");
+  JButton decreaseTempButton = new JButton("降低温度 (-5)");
+  JButton increaseSpeedButton = new JButton("风速升高");
+  JButton decreaseSpeedButton = new JButton("风速降低");
+  JButton offButton = new JButton("关机");
+  JButton exitButton = new JButton("退出");
+
+  // 为按钮绑定事件
+  switchModeButton.addActionListener(e -> sendCommand("SWITCH"));
+  increaseTempButton.addActionListener(e -> sendCommand("UP 5"));
+  decreaseTempButton.addActionListener(e -> sendCommand("DOWN 5"));
+  increaseSpeedButton.addActionListener(e -> sendCommand("SPEEDUP"));
+  decreaseSpeedButton.addActionListener(e -> sendCommand("SPEEDDOWN"));
+  offButton.addActionListener(e -> sendCommand("OFF"));
+  exitButton.addActionListener(e -> System.exit(0)); // 退出程序
+
+  // 将按钮添加到面板
+  panel.add(switchModeButton);
+  panel.add(increaseTempButton);
+  panel.add(decreaseTempButton);
+  panel.add(increaseSpeedButton);
+  panel.add(decreaseSpeedButton);
+  panel.add(offButton);
+  panel.add(exitButton);
+
+  // 将面板添加到窗口
+  add(panel);
+  setVisible(true);
+ }
+
+ // 发送命令到客户端
+ private void sendCommand(String command) {
+  Client.setCommand(command);
+  Client.setDeviceName(DEVICE_NAME);
+  Client.setTargetDeviceName(TARGET_DEVICE_NAME);
+  Client.main(null); // 启动TargetDevice
+ }
+
  public static void main(String[] args) {
-  Scanner scanner = new Scanner(System.in);
-  boolean running = true;
-  String COMMAND = "";
-
-  while (running) {
-   System.out.println("请选择对空调的操作：");
-   System.out.println("1. 切换模式");
-   System.out.println("2. 升高温度");
-   System.out.println("3. 降低温度");
-   System.out.println("4. 风速升高");
-   System.out.println("5. 风速降低");
-   System.out.println("6. 关机");
-   System.out.println("7. 退出");
-
-   int choice = scanner.nextInt();
-   scanner.nextLine(); // 读取换行符，避免影响后续输入
-   switch (choice) {
-    case 1:
-     COMMAND = "SWITCH";
-     break;
-    case 2:
-     COMMAND = "UP 5";
-     break;
-    case 3:
-     COMMAND = "DOWN 5";
-     break;
-    case 4:
-     COMMAND = "SPEEDUP";
-     break;
-    case 5:
-     COMMAND = "SPEEDDOWN";
-     break;
-    case 6:
-     COMMAND = "OFF";
-     break;
-    case 7:
-     running = false;
-     System.out.println("退出。");
-     break;
-    default:
-     System.out.println("无效的选项，请重新选择！");
-     continue;
-   }
-   if (running) { // 只有在不退出的情况下才调用 Client
-    Client.setCommand(COMMAND);
-    Client.setDeviceName(DEVICE_NAME); // 修改用户名
-    Client.setTargetDeviceName(TARGET_DEVICE_NAME); // 修改TargetDevice设备名
-    Client.main(null); // 启动TargetDevice
-   }
-  }
-
-  scanner.close(); // 关闭扫描器
+  SwingUtilities.invokeLater(User3::new); // 启动GUI
  }
 }

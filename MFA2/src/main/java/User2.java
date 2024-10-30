@@ -1,75 +1,84 @@
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class User2 {
- private static String DEVICE_NAME = "卓爱同学";
- private static String TARGET_DEVICE_NAME = "Light";
+public class User2 extends JFrame {
+ private static final String DEVICE_NAME = "卓爱同学";
+ private static final String TARGET_DEVICE_NAME = "Light";
+ private String selectedLight = "";
+
+ public User2() {
+  setTitle("灯光控制系统");
+  setSize(400, 300);
+  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  setLocationRelativeTo(null); // 窗口居中显示
+
+  // 创建主面板，显示灯选择界面
+  JPanel mainPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+  JButton livingRoomButton = new JButton("客厅灯");
+  JButton bedroomButton = new JButton("卧室灯");
+  JButton bathroomButton = new JButton("卫生间灯");
+  JButton exitButton = new JButton("退出");
+
+  // 为按钮绑定事件，选择灯并进入操作界面
+  livingRoomButton.addActionListener(e -> openLightControlPanel("livingRoomLight"));
+  bedroomButton.addActionListener(e -> openLightControlPanel("bedroomLight"));
+  bathroomButton.addActionListener(e -> openLightControlPanel("bathroomLight"));
+  exitButton.addActionListener(e -> System.exit(0)); // 退出程序
+
+  // 将按钮添加到主面板
+  mainPanel.add(livingRoomButton);
+  mainPanel.add(bedroomButton);
+  mainPanel.add(bathroomButton);
+  mainPanel.add(exitButton);
+
+  // 将主面板添加到窗口
+  add(mainPanel);
+  setVisible(true);
+ }
+
+ // 打开控制界面来操作指定的灯
+ private void openLightControlPanel(String light) {
+  selectedLight = light;
+  JFrame controlFrame = new JFrame("控制 " + light);
+  controlFrame.setSize(300, 200);
+  controlFrame.setLocationRelativeTo(null);
+
+  JPanel controlPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+  JButton turnButton = new JButton("开关");
+  JButton increaseBrightnessButton = new JButton("亮度升高");
+  JButton decreaseBrightnessButton = new JButton("亮度降低");
+  JButton backButton = new JButton("返回");
+
+  // 为控制按钮绑定事件
+  turnButton.addActionListener(e -> sendCommand("TURN"));
+  increaseBrightnessButton.addActionListener(e -> sendCommand("UP"));
+  decreaseBrightnessButton.addActionListener(e -> sendCommand("DOWN"));
+  backButton.addActionListener(e -> controlFrame.dispose()); // 返回主界面
+
+  // 将按钮添加到控制面板
+  controlPanel.add(turnButton);
+  controlPanel.add(increaseBrightnessButton);
+  controlPanel.add(decreaseBrightnessButton);
+  controlPanel.add(backButton);
+
+  controlFrame.add(controlPanel);
+  controlFrame.setVisible(true);
+ }
+
+ // 发送命令到客户端
+ private void sendCommand(String operation) {
+  String command = selectedLight + " " + operation;
+  Client.setCommand(command);
+  Client.setDeviceName(DEVICE_NAME);
+  Client.setTargetDeviceName(TARGET_DEVICE_NAME);
+  Client.main(null); // 启动TargetDevice
+
+  JOptionPane.showMessageDialog(this, "命令已发送: " + command);
+ }
 
  public static void main(String[] args) {
-  Scanner scanner = new Scanner(System.in);
-  boolean running = true;
-  String COMMAND = "";
-
-  while (running) {
-   System.out.println("请选择要操作的灯：");
-   System.out.println("1. 客厅灯");
-   System.out.println("2. 卧室灯");
-   System.out.println("3. 卫生间灯");
-   System.out.println("4. 退出");
-
-   int choice = scanner.nextInt();
-   scanner.nextLine(); // 读取换行符，避免影响后续输入
-   String tagertLight = "";
-   switch (choice) {
-    case 1:
-     tagertLight = "livingRoomLight";
-     break;
-    case 2:
-     tagertLight = "bedroomLight";
-     break;
-    case 3:
-     tagertLight = "bathroomLight";
-     break;
-    case 4:
-     running = false;
-     System.out.println("退出程序。");
-     break;
-    default:
-     System.out.println("无效的选项，请重新选择！");
-     continue;
-   }
-   System.out.println("请选择对灯的操作：");
-   System.out.println("1. 开关");
-   System.out.println("2. 亮度升高");
-   System.out.println("3. 亮度降低");
-   System.out.println("4. 退出");
-   int choice2 = scanner.nextInt();
-   scanner.nextLine(); // 读取换行符，避免影响后续输入
-   switch (choice2) {
-    case 1:
-     COMMAND = tagertLight + " " + "TURN";
-     break;
-    case 2:
-     COMMAND = tagertLight + " " + "UP";
-     break;
-    case 3:
-     COMMAND = tagertLight + " " + "DOWN";
-     break;
-    case 4:
-     running = false;
-     System.out.println("退出。");
-     break;
-    default:
-     System.out.println("无效的选项，请重新选择！");
-     continue;
-   }
-   if (running) { // 只有在不退出的情况下才调用 Client
-    Client.setCommand(COMMAND);
-    Client.setDeviceName(DEVICE_NAME); // 修改用户名
-    Client.setTargetDeviceName(TARGET_DEVICE_NAME); // 修改TargetDevice设备名
-    Client.main(null); // 启动TargetDevice
-   }
-  }
-
-  scanner.close(); // 关闭扫描器
+  SwingUtilities.invokeLater(User2::new); // 启动GUI
  }
 }
