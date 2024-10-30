@@ -93,17 +93,11 @@ public class DeviceGUI{
   frame.setVisible(true);
   registerButton.setEnabled(false); // 禁用注册按钮
   startDeviceButton.setEnabled(false); // 禁用启动设备按钮
-  if (new java.io.File("wifi.txt").exists()) {
-   bluetoothButton.setText("配对成功");
-   bluetoothButton.setEnabled(false); // 禁用按钮，防止再次点击
-   registerButton.setEnabled(true); // 启用注册按钮
-  }
   if (new java.io.File("received_keys/" + "clientPrivateKey_" + DEVICE_NAME + ".pem").exists()) {
    // 如果注册成功，更新按钮状态
    SwingUtilities.invokeLater(() -> {
     registerButton.setText("注册成功");
     registerButton.setEnabled(false); // 禁用按钮
-    startDeviceButton.setEnabled(true); // 启用启动设备按钮
    });
   }
   makeFrameDraggable(); // 使窗口可拖动
@@ -137,25 +131,22 @@ public class DeviceGUI{
 
  // 蓝牙配对功能
  private static void performBluetoothPairing() {
-  // 模拟 Wi-Fi 账户信息
-  String ssid = "WiFi";
-  String password = "12345678";
-
-  // 将 Wi-Fi 信息保存到文件
-  try (FileWriter writer = new FileWriter("wifi.txt")) {
-   writer.write("SSID: " + ssid + "\n");
-   writer.write("Password: " + password + "\n");
-   log("Wi-Fi 信息已保存。");
-   //WifiConnector.main(null);
-  } catch (IOException ex) {
-   ex.printStackTrace();
-   JOptionPane.showMessageDialog(null, "保存 Wi-Fi 信息失败", "错误", JOptionPane.ERROR_MESSAGE);
-  }
-
+  System.out.println("正在接收音频");
+  RunPythonScript.main(null);
   // 更新按钮状态
   bluetoothButton.setText("配对成功");
   bluetoothButton.setEnabled(false); // 禁用按钮，防止再次点击
-  registerButton.setEnabled(true);
+
+  if (new java.io.File("received_keys/" + "clientPrivateKey_" + DEVICE_NAME + ".pem").exists()) {
+   // 如果注册成功，更新按钮状态
+   SwingUtilities.invokeLater(() -> {
+    registerButton.setText("注册成功");
+    registerButton.setEnabled(false); // 禁用按钮
+    startDeviceButton.setEnabled(true);
+   });
+  }else{
+   registerButton.setEnabled(true);
+  }
  }
 
  private static void registerCertificate() {

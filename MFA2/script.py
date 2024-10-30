@@ -55,7 +55,7 @@ def decode_audio(audio_data, sample_rate, freq0=1000, freq1=2000, duration=0.2):
 # 示例：录音并解码
 audio_data, sample_rate = record_audio(duration=5)
 decoded_text = decode_audio(audio_data, sample_rate)
-print("接收到的数据:", decoded_text)
+print("接收到wifi:", decoded_text)
 
 # 将解码后的数据保存到 wifi.txt 文件中
 with open("wifi.txt", "w", encoding="utf-8") as file:

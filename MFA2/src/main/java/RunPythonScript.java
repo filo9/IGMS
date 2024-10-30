@@ -21,7 +21,6 @@ public class RunPythonScript {
             // 读取并输出脚本的标准输出
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
-            System.out.println("音频处理:");
             while ((line = stdInput.readLine()) != null) {
                 System.out.println(line);
             }
@@ -33,8 +32,8 @@ public class RunPythonScript {
             }
 
             // 等待脚本执行结束并获取退出码
-            int exitCode = process.waitFor();
-            System.out.println("Exited with code: " + exitCode);
+            //int exitCode = process.waitFor();
+            //System.out.println("Exited with code: " + exitCode);
 
         } catch (Exception e) {
             e.printStackTrace();
