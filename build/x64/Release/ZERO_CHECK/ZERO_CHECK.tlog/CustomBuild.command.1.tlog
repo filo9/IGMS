@@ -1,0 +1,10 @@
+^C:\USERS\17285\DESKTOP\MFA2\BUILD\CMAKEFILES\47C1B648FCDDE560750C2D20AB874485\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/17285/Desktop/MFA2 -BC:/Users/17285/Desktop/MFA2/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/17285/Desktop/MFA2/build/RecordAudio.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

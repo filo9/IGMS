@@ -50,31 +50,30 @@ public class Administrator {
 
       String publicKeyFilePath = "clientPublicKey_" + deviceName + ".pem";
       File publicKeyFile = new File(publicKeyFilePath);
+      String privateKeyFilePath = "keystore_" + deviceName; // 假设私钥存在于该路径
 
       if (!publicKeyFile.exists()) {
        // 设备名称不存在，生成新的密钥对
        generateKeyPair(KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_PASSWORD, deviceName);
+      } else {
+       // 设备已注册，读取私钥和网关公钥并发送
+       PrivateKey privateKey = getPrivateKeyFromKeystore(privateKeyFilePath, "serverkey_" + deviceName, KEYSTORE_PASSWORD, KEY_PASSWORD);
+       PublicKey gatewayPublicKey = getPublicKeyFromKeystore("keystore_GatewayServer", "serverkey_GatewayServer", KEYSTORE_PASSWORD, KEY_PASSWORD);
 
-       // 从密钥库中提取私钥和公钥
-       PrivateKey privateKey = getPrivateKeyFromKeystore("keystore_" + deviceName, "serverkey_" + deviceName, KEYSTORE_PASSWORD, KEY_PASSWORD);
-       PublicKey publicKey = getPublicKeyFromKeystore("keystore_" + deviceName, "serverkey_" + deviceName, KEYSTORE_PASSWORD, KEY_PASSWORD);
-       PublicKey GatewayServerpublicKey = getPublicKeyFromKeystore("keystore_GatewayServer", "serverkey_GatewayServer", KEYSTORE_PASSWORD, KEY_PASSWORD);
        // 通过套接字发送私钥
        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
        out.writeObject(privateKey);
        out.flush();
        System.out.println("私钥已发送给客户端");
 
+       // 发送网关公钥
        ObjectOutputStream out2 = new ObjectOutputStream(clientSocket.getOutputStream());
-       out2.writeObject(GatewayServerpublicKey);
+       out2.writeObject(gatewayPublicKey);
        out2.flush();
        System.out.println("网关公钥已发送给客户端");
-
-       // 生成设备对应的公钥文件
-       savePublicKey(publicKey, publicKeyFilePath);
       }
      } catch (IOException e) {
-      if (running) {  // 只有在非手动停止时才打印错误
+      if (running) {
        e.printStackTrace();
       } else {
        System.out.println("服务器停止");
@@ -84,20 +83,20 @@ public class Administrator {
    }
   } catch (Exception e) {
    e.printStackTrace();
-  }finally {
-   stop(); // Ensure cleanup on exit
+  } finally {
+   stop(); // 确保退出时清理
   }
  }
 
- private static void generateKeyPair(String keystoreFile, String keystorePassword, String keyPassword, String devicename) {
+ private static void generateKeyPair(String keystoreFile, String keystorePassword, String keyPassword, String deviceName) {
   String[] command = {
           "keytool",
           "-genkeypair",
-          "-alias", "serverkey_" + devicename,
+          "-alias", "serverkey_" + deviceName,
           "-keyalg", "EC",
           "-groupname", "secp256r1",
           "-validity", "365",
-          "-keystore", "keystore_" + devicename,
+          "-keystore", "keystore_" + deviceName,
           "-dname", "CN=localhost, OU=Test, O=Test, L=Test, ST=Test, C=US",
           "-storepass", keystorePassword,
           "-keypass", keyPassword
@@ -134,20 +133,15 @@ public class Administrator {
   return keystore.getCertificate(alias).getPublicKey();
  }
 
- private static void savePublicKey(PublicKey publicKey, String filePath) throws IOException {
-  byte[] encodedKey = Base64.getEncoder().encode(publicKey.getEncoded());
-  String pemKey = "-----BEGIN PUBLIC KEY-----\n" + new String(encodedKey) + "\n-----END PUBLIC KEY-----";
-  Files.write(Paths.get(filePath), pemKey.getBytes());
- }
  public static void stop() {
   running = false;
   try {
    if (serverSocket != null && !serverSocket.isClosed()) {
-    serverSocket.close();  // 关闭服务器套接字
+    serverSocket.close(); // 关闭服务器套接字
    }
   } catch (IOException e) {
    e.printStackTrace();
   }
  }
-
 }
+

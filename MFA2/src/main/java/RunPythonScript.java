@@ -7,12 +7,13 @@ import java.io.PrintWriter;
 public class RunPythonScript {
 
     public static void main(String[] args) {
+
         try {
+
             // 设置Python脚本的目录路径
             File projectDir;
             String pythonPath;
             String scriptName = "rev.py"; // Python脚本名称
-
             // 根据操作系统选择路径
             if (System.getProperty("os.name").toLowerCase().contains("win")) {
                 projectDir = new File("c:/Users/17285/Desktop/MFA2/MFA2/src/main/python");
@@ -46,9 +47,6 @@ public class RunPythonScript {
                 System.out.println(line);
             }
 
-            // 等待脚本执行结束并获取退出码
-            int exitCode = process.waitFor();
-            System.out.println("Exited with code: " + exitCode);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -51,7 +51,7 @@ public class DeviceGUI{
   panel.add(scrollPane); // 将滚动面板添加到主面板
 
   // 按钮初始化
-  bluetoothButton = new JButton("蓝牙配对");
+  bluetoothButton = new JButton("音频配对");
   registerButton = new JButton("注册证书");
   startDeviceButton = new JButton("启动设备"); // 在此处初始化startDeviceButton
   JButton exitButton = new JButton("退出");
@@ -92,14 +92,8 @@ public class DeviceGUI{
   frame.setLocationRelativeTo(null); // 居中显示
   frame.setVisible(true);
   registerButton.setEnabled(false); // 禁用注册按钮
-  startDeviceButton.setEnabled(true); // 禁用启动设备按钮
-  if (new java.io.File("received_keys/" + "clientPrivateKey_" + DEVICE_NAME + ".pem").exists()) {
-   // 如果注册成功，更新按钮状态
-   SwingUtilities.invokeLater(() -> {
-    registerButton.setText("注册成功");
-    registerButton.setEnabled(false); // 禁用按钮
-   });
-  }
+  startDeviceButton.setEnabled(false); // 禁用启动设备按钮
+
   makeFrameDraggable(); // 使窗口可拖动
  }
 
@@ -132,21 +126,24 @@ public class DeviceGUI{
  // 蓝牙配对功能
  private static void performBluetoothPairing() {
   System.out.println("正在接收音频");
-  RunPythonScript.main(null);
-  // 更新按钮状态
-  bluetoothButton.setText("配对成功");
-  bluetoothButton.setEnabled(false); // 禁用按钮，防止再次点击
 
-  if (new java.io.File("received_keys/" + "clientPrivateKey_" + DEVICE_NAME + ".pem").exists()) {
-   // 如果注册成功，更新按钮状态
-   SwingUtilities.invokeLater(() -> {
-    registerButton.setText("注册成功");
-    registerButton.setEnabled(false); // 禁用按钮
-    startDeviceButton.setEnabled(true);
-   });
-  }else{
-   registerButton.setEnabled(true);
-  }
+  // 创建一个新的线程来处理配对过程
+  new Thread(() -> {
+   try {
+    // 睡眠 5 秒 (5000 毫秒)
+    Thread.sleep(5000);
+    RunPythonScript.main(null);
+
+    // 更新按钮状态
+    SwingUtilities.invokeLater(() -> {
+     bluetoothButton.setText("配对成功");
+     bluetoothButton.setEnabled(false); // 禁用按钮，防止再次点击
+     registerButton.setEnabled(true);
+    });
+   } catch (InterruptedException e) {
+    e.printStackTrace();
+   }
+  }).start(); // 启动新线程
  }
 
  private static void registerCertificate() {
@@ -161,6 +158,7 @@ public class DeviceGUI{
      // 如果注册成功，更新按钮状态
      SwingUtilities.invokeLater(() -> {
       registerButton.setText("注册成功");
+      System.out.println("已拥有证书");
       registerButton.setEnabled(false); // 禁用按钮
       startDeviceButton.setEnabled(true); // 启用启动设备按钮
      });
