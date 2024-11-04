@@ -1,0 +1,29 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:ignore="ExtraText">
+
+    <EditText
+        android:id="@+id/etWifiAccount"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:hint="Enter WiFi Account" />
+
+    <EditText
+        android:id="@+id/etWifiPassword"
+        android:layout_width="match_parent"
+        android:layout_height="98dp"
+        android:hint="Enter WiFi Password"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="180dp"
+        android:layout_height="102dp"
+        android:text="Send"
+        android:textSize="24sp" />
+    android:textSize="36sp"/>
+</LinearLayout>
