@@ -3,6 +3,11 @@ import pyaudio
 import wave
 from scipy.fft import fft
 import time
+import sys
+import io
+
+# 设置标准输出为UTF-8编码
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # 参数配置
 SAMPLE_RATE = 48000  # 更改为常用的采样率，兼容性更好
@@ -96,7 +101,8 @@ def decode_audio(audio_data, sample_rate, freq0=FREQ0, freq1=FREQ1, duration=DUR
 
 # 主程序
 def main():
-    choice = input("选择输入方式：1. 录音  2. 从文件读取 (输入1或2): ")
+    print("选择输入方式：1. 录音  2. 从文件读取 (输入1或2): ")
+    choice = input()
 
     if choice == "1":
         audio_data, sample_rate = record_audio()
