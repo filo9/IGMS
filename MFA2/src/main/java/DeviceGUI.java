@@ -92,7 +92,7 @@ public class DeviceGUI{
   frame.setLocationRelativeTo(null); // 居中显示
   frame.setVisible(true);
   registerButton.setEnabled(false); // 禁用注册按钮
-  startDeviceButton.setEnabled(false); // 禁用启动设备按钮
+  startDeviceButton.setEnabled(true); // 禁用启动设备按钮
   if (new java.io.File("received_keys/" + "clientPrivateKey_" + DEVICE_NAME + ".pem").exists()) {
    // 如果注册成功，更新按钮状态
    SwingUtilities.invokeLater(() -> {
