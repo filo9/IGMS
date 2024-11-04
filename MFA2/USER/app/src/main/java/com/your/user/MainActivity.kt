@@ -13,10 +13,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val sampleRate = 80000  // 与 Python 中保持一致
-    private val duration = 100      // 每个比特的持续时间 (ms)
-    private val freq0 = 500         // 表示“0”的频率
-    private val freq1 = 10000       // 表示“1”的频率
+    private val sampleRate = 44100   // 与 Python 中保持一致
+    private val duration = 30      // 每个比特的持续时间 (ms)
+    private val freq0 = 800         // 表示“0”的频率
+    private val freq1 = 4000       // 表示“1”的频率
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     // 将字符串转换为二进制字符串
     private fun stringToBinary(text: String): String {
-        return text.toCharArray().joinToString(separator = "") {
+        return text.toCharArray().joinToString("") {
             String.format("%8s", Integer.toBinaryString(it.code)).replace(' ', '0')
         }
     }
@@ -71,12 +71,10 @@ class MainActivity : AppCompatActivity() {
     private fun generateTone(freq: Int, durationMs: Int): ShortArray {
         val numSamples = durationMs * sampleRate / 1000
         val buffer = ShortArray(numSamples)
-        var angle = 0.0
         val increment = 2 * PI * freq / sampleRate
 
         for (i in buffer.indices) {
-            buffer[i] = (sin(angle) * Short.MAX_VALUE).toInt().toShort()
-            angle += increment
+            buffer[i] = (sin(i * increment) * Short.MAX_VALUE).toInt().toShort()
         }
         return buffer
     }

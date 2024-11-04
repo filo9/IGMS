@@ -10,10 +10,10 @@ import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # 参数配置
-SAMPLE_RATE = 48000  # 更改为常用的采样率，兼容性更好
-DURATION_PER_BIT = 0.01  # 每个比特的时长（秒）
-FREQ0 = 500  # 表示“0”的频率
-FREQ1 = 10000  # 表示“1”的频率
+SAMPLE_RATE = 44100  # 更改为常用的采样率，兼容性更好
+DURATION_PER_BIT = 0.03  # 每个比特的时长（秒）
+FREQ0 = 800  # 表示“0”的频率
+FREQ1 = 4000  # 表示“1”的频率
 OUTPUT_WAV_FILE = "audio_signal.wav"  # 保存录音的文件名
 
 
@@ -101,9 +101,7 @@ def decode_audio(audio_data, sample_rate, freq0=FREQ0, freq1=FREQ1, duration=DUR
 
 # 主程序
 def main():
-    print("选择输入方式：1. 录音  2. 从文件读取 (输入1或2): ")
     choice = input()
-
     if choice == "1":
         audio_data, sample_rate = record_audio()
     elif choice == "2":
@@ -114,7 +112,7 @@ def main():
         return
 
     decoded_text = decode_audio(audio_data, sample_rate)
-    print("接收到的文本:", decoded_text)
+    print("接收到的wifi:", decoded_text)
 
     # 将解码后的文本保存到 wifi.txt 文件中
     with open("wifi.txt", "w", encoding="utf-8") as file:
