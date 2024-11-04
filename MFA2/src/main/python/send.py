@@ -2,7 +2,11 @@ import numpy as np
 import sounddevice as sd
 import wave
 import struct
+import sys
+import io
 
+# 设置标准输出为UTF-8编码
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 # 配置参数
 SAMPLE_RATE = 48000  # 与Android端保持一致
 DURATION_MS = 10  # 每比特的持续时间（毫秒）
