@@ -15,7 +15,7 @@ public class KeyClient {
  private static final String TRUSTSTORE_FILE = "clienttruststore.jks";
  private static final String TRUSTSTORE_PASSWORD = "password";
  private static final String RECEIVED_KEYS_DIR = "received_keys";
- private static String DEVICE_NAME = "TV";
+ private static String DEVICE_NAME = "";
  public static void main(String[] args) {
   try {
    // 创建接收密钥的目录

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btn_turn"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="开关"
+        android:textSize="36sp" />
+
+    <Button
+        android:id="@+id/btn_increase_brightness"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="亮度升高"
+        android:textSize="36sp" />
+
+    <Button
+        android:id="@+id/btn_decrease_brightness"
+        android:layout_width="371dp"
+        android:layout_height="100dp"
+        android:text="亮度降低"
+        android:textSize="36sp" />
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="373dp"
+        android:layout_height="100dp"
+        android:text="返回"
+        android:textSize="36sp" />
+
+</LinearLayout>

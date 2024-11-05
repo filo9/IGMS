@@ -8,10 +8,11 @@
     <!-- 返回按钮 -->
     <Button
         android:id="@+id/btnBack"
-        android:layout_width="wrap_content"
+        android:layout_width="132dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="start"
         android:text="返回"
-        android:layout_gravity="start" />
+        android:textSize="36sp" />
     <EditText
         android:id="@+id/etWifiAccount"
         android:layout_width="match_parent"
@@ -27,8 +28,8 @@
 
     <Button
         android:id="@+id/btnSend"
-        android:layout_width="214dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
         android:text="发送音频"
         android:textSize="36sp" />
 </LinearLayout>

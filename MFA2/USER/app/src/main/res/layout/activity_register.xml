@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- 信息显示区 -->
+
+    <!-- 返回按钮 -->
+
+    <TextView
+        android:id="@+id/tvOutput"
+        android:layout_width="380dp"
+        android:layout_height="447dp"
+        android:padding="8dp"
+        android:text="注册输出信息"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="136dp"
+        android:layout_height="91dp"
+        android:layout_marginTop="16dp"
+        android:text="返回"
+        android:textSize="36sp" />
+
+</LinearLayout>

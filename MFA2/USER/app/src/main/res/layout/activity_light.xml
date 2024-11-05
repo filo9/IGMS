@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btn_living_room"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="客厅灯" />
+
+    <Button
+        android:id="@+id/btn_bedroom"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="卧室灯" />
+
+    <Button
+        android:id="@+id/btn_bathroom"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="卫生间灯" />
+
+    <Button
+        android:id="@+id/btn_exit"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="退出" />
+
+</LinearLayout>

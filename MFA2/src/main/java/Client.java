@@ -181,7 +181,6 @@ public class Client {
 
         // 压缩数据
         byte[] combined = buffer.array();
-        //System.out.println("压缩前数据: " + Arrays.toString(combined));
 
         Deflater compressor = new Deflater();
         compressor.setInput(combined);
@@ -196,7 +195,7 @@ public class Client {
         }
 
         byte[] compressedData = outputStream.toByteArray();
-        //System.out.println("压缩后数据: " + Arrays.toString(compressedData));
+
 
         return compressedData;
     }

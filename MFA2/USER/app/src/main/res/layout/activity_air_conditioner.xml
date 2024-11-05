@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btn_switch_mode"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="切换模式" />
+
+    <Button
+        android:id="@+id/btn_increase_temp"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="升高温度 (+5)" />
+
+    <Button
+        android:id="@+id/btn_decrease_temp"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="降低温度 (-5)" />
+
+    <Button
+        android:id="@+id/btn_increase_speed"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="风速升高" />
+
+    <Button
+        android:id="@+id/btn_decrease_speed"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="风速降低" />
+
+    <Button
+        android:id="@+id/btn_off"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="关机" />
+
+    <Button
+        android:id="@+id/btn_exit"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:textSize="36sp"
+        android:text="退出" />
+
+</LinearLayout>

@@ -1,13 +1,61 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_main.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/setUserNameButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
+        android:text="设置用户" />
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
+        android:text="注册" />
 
     <Button
         android:id="@+id/btnGoToAudioActivity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
         android:text="音频配对" />
+
+    <Button
+        android:id="@+id/controlDoorButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
+        android:text="控制门" />
+
+    <Button
+        android:id="@+id/controlLightButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="控制灯"
+        android:textSize="36sp" />
+
+    <Button
+        android:id="@+id/controlAirConditionerButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
+        android:text="控制空调" />
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
+        android:text="注销" />
+    <Button
+        android:id="@+id/exitButton"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:textSize="36sp"
+        android:text="退出" />
 </LinearLayout>
