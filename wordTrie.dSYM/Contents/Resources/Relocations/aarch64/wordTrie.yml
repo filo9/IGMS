@@ -1,6 +1,6 @@
 ---
 triple:          'arm64-apple-darwin'
-binary-path:     '/Users/filo/Documents/GitHub/MFA2//wordTrie'
+binary-path:     '/Users/filo/Documents/GitHub/IGMS//wordTrie'
 relocations:
   - { offsetInCU: 0x5C, offset: 0x5C, size: 0x8, addend: 0x0, symName: __ZNSt3__119piecewise_constructE, symObjAddr: 0x8477, symBinAddr: 0x10000B9AF, symSize: 0x0 }
   - { offsetInCU: 0x874C, offset: 0x874C, size: 0x8, addend: 0x0, symName: __ZNSt3__16copy_nB8ue170006IPKcmPcEENS_9enable_ifIXsr37__has_random_access_iterator_categoryIT_EE5valueET1_E4typeES5_T0_S6_, symObjAddr: 0x6288, symBinAddr: 0x1000094FC, symSize: 0x44 }

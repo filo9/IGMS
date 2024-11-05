@@ -1,0 +1,34 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:ignore="ExtraText">
+    <!-- 返回按钮 -->
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="返回"
+        android:layout_gravity="start" />
+    <EditText
+        android:id="@+id/etWifiAccount"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:hint="输入WiFi" />
+
+    <EditText
+        android:id="@+id/etWifiPassword"
+        android:layout_width="match_parent"
+        android:layout_height="98dp"
+        android:hint="输入密码"
+        android:inputType="textPassword" />
+
+    <Button
+        android:id="@+id/btnSend"
+        android:layout_width="214dp"
+        android:layout_height="wrap_content"
+        android:text="发送音频"
+        android:textSize="36sp" />
+</LinearLayout>

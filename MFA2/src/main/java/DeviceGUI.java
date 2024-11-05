@@ -133,7 +133,7 @@ public class DeviceGUI{
     // 睡眠 5 秒 (5000 毫秒)
     Thread.sleep(5000);
     RunPythonScript.main(null);
-
+    //WifiConnector.main(null);
     // 更新按钮状态
     SwingUtilities.invokeLater(() -> {
      bluetoothButton.setText("配对成功");
