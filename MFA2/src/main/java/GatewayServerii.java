@@ -32,7 +32,7 @@ import javax.crypto.spec.IvParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class GatewayServerii {
 
-    private static final int COMMAND_PORT = 5555; // 和第二个服务端通信的端口
+    private static final int COMMAND_PORT = 55555; // 和第二个服务端通信的端口
     private static final int TLS_PORT = 12346; // TLS 客户端连接的端口
     private static final String KEYSTORE_FILE = "serverkeystore.jks"; // 密钥库文件
     private static final String KEYSTORE_PASSWORD = "password"; // 密钥库密码

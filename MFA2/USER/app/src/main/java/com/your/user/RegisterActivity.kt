@@ -26,7 +26,7 @@ import android.util.Base64
 class RegisterActivity : AppCompatActivity() {
 
     private val port = 12344
-    private val trustStoreFile = "clienttruststore.jks"
+    private val trustStoreFile = R.raw.clienttruststore // 修改为从 raw 读取
     private val trustStorePassword = "password"
     private val receivedKeysDir = "received_keys"
     private var deviceName = MainActivity.USER_NAME // 使用 MainActivity 中设置的用户名作为设备名
@@ -46,7 +46,6 @@ class RegisterActivity : AppCompatActivity() {
         registerDevice()
     }
 
-
     private fun registerDevice() {
         Thread {
             try {
@@ -55,51 +54,61 @@ class RegisterActivity : AppCompatActivity() {
                 if (!dir.exists()) dir.mkdirs()
 
                 // 加载信任存储
-                val trustStore = KeyStore.getInstance("JKS")
-                assets.open(trustStoreFile).use { inputStream ->
-                    trustStore.load(inputStream, trustStorePassword.toCharArray())
-                }
+                val trustStore = KeyStore.getInstance("PKCS12")
+                val inputStream = resources.openRawResource(R.raw.clienttruststore)
+                Log.d("RegisterActivity", "正在加载信任存储: clienttruststore")
+                trustStore.load(inputStream, trustStorePassword.toCharArray())
 
                 // 初始化 TrustManagerFactory 和 SSLContext
-                val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+                val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
                 trustManagerFactory.init(trustStore)
 
                 val sslContext = SSLContext.getInstance("TLS")
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器地址
-                val serverAddress = InetAddress.getByName("127.0.0.1")
-
+                val serverAddress = InetAddress.getByName("192.168.1.105")
+                updateOutput("找到服务器地址: \"192.168.1.105\"")
                 // 创建 SSLSocket 并连接到服务器
                 sslContext.socketFactory.createSocket(serverAddress, port).use { socket ->
                     val out = PrintWriter(socket.getOutputStream(), true)
                     val deviceName = this.deviceName
                     out.println(deviceName) // 发送设备名称
-                    Log.d("RegisterActivity", "已发送注册请求: $deviceName")
+                    updateOutput("已发送注册请求: $deviceName") // 更新输出
 
                     // 接收私钥
                     val input = ObjectInputStream(socket.getInputStream())
                     val privateKey = input.readObject() as PrivateKey
                     savePrivateKey(privateKey, "$receivedKeysDir/clientPrivateKey_$deviceName.pem")
-                    Log.d("RegisterActivity", "私钥已保存")
+                    updateOutput("私钥已保存") // 更新输出
 
                     // 接收服务器公钥
                     val input2 = ObjectInputStream(socket.getInputStream())
                     val gatewayServerPublicKey = input2.readObject() as PublicKey
                     savePublicKey(gatewayServerPublicKey, "$receivedKeysDir/GatewayServerPublicKey.pem")
-                    Log.d("RegisterActivity", "公钥已保存")
+                    updateOutput("公钥已保存") // 更新输出
 
                     runOnUiThread {
                         Toast.makeText(this, "注册成功，密钥已保存", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
-                Log.e("RegisterActivity", "注册失败", e)
+                Log.e("RegisterActivity", "注册失败: ${e.localizedMessage}", e)
+                updateOutput("注册失败: ${e.localizedMessage}")
                 runOnUiThread {
                     Toast.makeText(this, "注册失败", Toast.LENGTH_SHORT).show()
                 }
+            } catch (e: UnknownHostException) {
+                updateOutput("找不到服务器地址")
+                Log.e("RegisterActivity", "找不到服务器地址", e)
             }
         }.start()
+    }
+
+    private fun updateOutput(message: String) {
+        runOnUiThread {
+            tvOutput.append("\n$message") // 将消息添加到 TextView
+        }
     }
 
     private fun savePrivateKey(privateKey: PrivateKey, filePath: String) {
@@ -127,11 +136,9 @@ class RegisterActivity : AppCompatActivity() {
                 while (addresses.hasMoreElements()) {
                     val address = addresses.nextElement()
                     if (address is Inet4Address && !address.isLoopbackAddress()) {
-                        val parts = address.getHostAddress().split("\\.".toRegex())
-                            .dropLastWhile { it.isEmpty() }
-                            .toTypedArray()
+                        val parts = address.hostAddress.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                         parts[3] = "1" // 替换为1以获取特定的服务器地址
-                        return InetAddress.getByName(java.lang.String.join(".", *parts))
+                        return InetAddress.getByName(parts.joinToString("."))
                     }
                 }
             }

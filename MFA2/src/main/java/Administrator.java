@@ -55,7 +55,7 @@ public class Administrator {
       if (!publicKeyFile.exists()) {
        // 设备名称不存在，生成新的密钥对
        generateKeyPair(KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_PASSWORD, deviceName);
-      } else {
+      }
        // 设备已注册，读取私钥和网关公钥并发送
        PrivateKey privateKey = getPrivateKeyFromKeystore(privateKeyFilePath, "serverkey_" + deviceName, KEYSTORE_PASSWORD, KEY_PASSWORD);
        PublicKey gatewayPublicKey = getPublicKeyFromKeystore("keystore_GatewayServer", "serverkey_GatewayServer", KEYSTORE_PASSWORD, KEY_PASSWORD);
@@ -71,7 +71,7 @@ public class Administrator {
        out2.writeObject(gatewayPublicKey);
        out2.flush();
        System.out.println("网关公钥已发送给客户端");
-      }
+
      } catch (IOException e) {
       if (running) {
        e.printStackTrace();

@@ -45,7 +45,7 @@ class ElectronicDoorActivity : AppCompatActivity() {
         Client.setDeviceName(deviceName)
         Client.setTargetDeviceName(targetDeviceName)
         Client.setCommand(command)
-        Client.main(emptyArray()) // 启动命令
+        Client.main(arrayOf(), this)// 启动TargetDevice
         Toast.makeText(this, "命令已发送: $command", Toast.LENGTH_SHORT).show()
     }
 

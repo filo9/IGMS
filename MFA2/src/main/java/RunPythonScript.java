@@ -16,10 +16,10 @@ public class RunPythonScript {
             String scriptName = "rev.py"; // Python脚本名称
             // 根据操作系统选择路径
             if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                projectDir = new File("c:/Users/17285/Desktop/MFA2/MFA2/src/main/python");
+                projectDir = new File("c:/Users/17285/Desktop/IGMS/MFA2/src/main/python");
                 pythonPath = "C:/Users/17285/AppData/Local/Programs/Python/Python312/python.exe";
             } else { // 假设是macOS或Linux
-                projectDir = new File("/Users/filo/Documents/GitHub/MFA2/MFA2/src/main/python");
+                projectDir = new File("/Users/filo/Documents/GitHub/IGMS/MFA2/src/main/python");
                 pythonPath = "/Users/filo/.pyenv/shims/python"; // 或者你的Python路径
             }
 

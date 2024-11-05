@@ -1,5 +1,6 @@
 package com.your.user
 
+import android.content.Context
 import android.util.Base64
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.ByteArrayOutputStream
@@ -32,12 +33,9 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManagerFactory
 
-
 class Client {
     companion object {
         private const val PORT = 12345
-        private const val TRUSTSTORE_FILE = "clienttruststore.jks"
-        private const val TRUSTSTORE_PASSWORD = "password"
         private const val RECEIVED_KEYS_DIR = "received_keys"
         private var DEVICE_NAME = ""
         private var TARGET_DEVICE_NAME = ""
@@ -46,16 +44,21 @@ class Client {
         private const val AES_KEY_SIZE = 128
         private const val GCM_IV_LENGTH = 12
         private const val GCM_TAG_LENGTH = 128
+        private const val TRUSTSTORE_FILE = "clienttruststore.p12" // 使用 PKCS12 格式的信任库文件
+        private const val TRUSTSTORE_PASSWORD = "password"
 
         init {
+            // 添加 Bouncy Castle 提供程序
             Security.addProvider(BouncyCastleProvider())
+            println("Bouncy Castle provider added.")
         }
 
         @JvmStatic
-        fun main(args: Array<String>) {
+        fun main(args: Array<String>, context: Context) {
+
             try {
                 // 创建接收密钥的目录
-                createReceivedKeysDirectory()
+                createReceivedKeysDirectory(context)
 
                 // 1. 生成 AES-GCM 会话密钥
                 val aesKey = generateAesKey()
@@ -65,7 +68,7 @@ class Client {
                 val messageHash = hashMessage(combinedMessage)
 
                 // 3. 使用设备私钥对哈希值生成报文鉴别码 (MAC)
-                val clientPrivateKey = loadPrivateKey(getClientPrivateKeyFile())
+                val clientPrivateKey = loadPrivateKey(getClientPrivateKeyFile(context))
                 val mac = signMessage(messageHash, clientPrivateKey)
 
                 // 4. 创建时间戳，并拼接扩展消息 (设备名称、命令、时间戳、MAC)
@@ -76,11 +79,12 @@ class Client {
                 val encryptedMessage = encryptWithAesGcm(extendedMessage, aesKey)
 
                 // 6. 使用网关公钥加密 AES 会话密钥
-                val gatewayPublicKey = loadPublicKey(GATEWAY_PUBLIC_KEY_FILE)
+                val gatewaykeyFilePath = File(context.filesDir, GATEWAY_PUBLIC_KEY_FILE).absolutePath
+                val gatewayPublicKey = loadPublicKey(gatewaykeyFilePath)
                 val encryptedAesKey = encryptAesKeyWithPublicKey(aesKey.encoded, gatewayPublicKey)
 
-                // 加载信任存储
-                val trustStore = KeyStore.getInstance("JKS")
+                // 加载 PKCS12 信任存储
+                val trustStore = KeyStore.getInstance("PKCS12")
                 FileInputStream(TRUSTSTORE_FILE).use { trustStoreIS ->
                     trustStore.load(trustStoreIS, TRUSTSTORE_PASSWORD.toCharArray())
                 }
@@ -94,7 +98,7 @@ class Client {
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器的 IP 地址
-                val serverAddress = InetAddress.getByName("127.0.0.1")
+                val serverAddress = InetAddress.getByName("192.168.1.105")
                 println("服务器地址: ${serverAddress.hostAddress}")
 
                 // 创建 SSLSocket
@@ -113,8 +117,8 @@ class Client {
             }
         }
 
-        private fun createReceivedKeysDirectory() {
-            val dir = File(RECEIVED_KEYS_DIR)
+        private fun createReceivedKeysDirectory(context: Context) {
+            val dir = File(context.filesDir, RECEIVED_KEYS_DIR)
             if (!dir.exists()) {
                 dir.mkdirs() // 使用 File.mkdirs() 代替 Files.createDirectories
             }
@@ -211,9 +215,11 @@ class Client {
             return outputStream.toByteArray()
         }
 
-        private fun getClientPrivateKeyFile(): String {
-            return "$RECEIVED_KEYS_DIR/clientPrivateKey_$DEVICE_NAME.pem"
+        private fun getClientPrivateKeyFile(context: Context): String {
+            val keyFilePath = File(context.filesDir, "received_keys/clientPrivateKey_$DEVICE_NAME.pem").absolutePath
+            return keyFilePath
         }
+
         private fun getServerAddress(): InetAddress? {
             try {
                 val interfaces = NetworkInterface.getNetworkInterfaces()
@@ -241,6 +247,7 @@ class Client {
             }
             return null
         }
+
         fun setDeviceName(newDeviceName: String) {
             DEVICE_NAME = newDeviceName
         }

@@ -43,7 +43,7 @@ class LightActivity : AppCompatActivity() {
         Client.setCommand(command)
         Client.setDeviceName(DEVICE_NAME)
         Client.setTargetDeviceName(TARGET_DEVICE_NAME)
-        Client.main(emptyArray()) // 启动TargetDevice
+        Client.main(arrayOf(), this)// 启动TargetDevice
         Toast.makeText(this, "命令已发送: $command", Toast.LENGTH_SHORT).show()
     }
 }

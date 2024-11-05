@@ -21,14 +21,14 @@
 
     <Button
         android:id="@+id/btn_decrease_brightness"
-        android:layout_width="371dp"
+        android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="亮度降低"
         android:textSize="36sp" />
 
     <Button
         android:id="@+id/btn_back"
-        android:layout_width="373dp"
+        android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="返回"
         android:textSize="36sp" />

@@ -14,13 +14,13 @@
         android:layout_width="380dp"
         android:layout_height="447dp"
         android:padding="8dp"
-        android:text="注册输出信息"
+        android:text="注册信息:"
         android:textSize="24sp" />
 
     <Button
         android:id="@+id/btnBack"
-        android:layout_width="136dp"
-        android:layout_height="91dp"
+        android:layout_width="369dp"
+        android:layout_height="103dp"
         android:layout_marginTop="16dp"
         android:text="返回"
         android:textSize="36sp" />
