@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AirConditionerActivity : AppCompatActivity() {
     private val DEVICE_NAME = MainActivity.USER_NAME
@@ -36,10 +40,16 @@ class AirConditionerActivity : AppCompatActivity() {
 
     // 发送命令到客户端
     private fun sendCommand(command: String) {
-        Client.setCommand(command)
-        Client.setDeviceName(DEVICE_NAME)
-        Client.setTargetDeviceName(TARGET_DEVICE_NAME)
-        Client.main(arrayOf(), this)// 启动TargetDevice
-        Toast.makeText(this, "命令已发送: $command", Toast.LENGTH_SHORT).show()
+        CoroutineScope(Dispatchers.IO).launch {
+            Client.setCommand(command)
+            Client.setDeviceName(DEVICE_NAME)
+            Client.setTargetDeviceName(TARGET_DEVICE_NAME)
+            Client.main(arrayOf(), this@AirConditionerActivity) // 启动TargetDevice
+
+            // 切换到主线程显示Toast
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@AirConditionerActivity, "命令已发送: $command", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

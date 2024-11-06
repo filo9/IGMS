@@ -1,13 +1,16 @@
 package com.your.user
 import android.widget.EditText
 import android.text.InputType
-import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ElectronicDoorActivity : AppCompatActivity() {
 
@@ -40,13 +43,20 @@ class ElectronicDoorActivity : AppCompatActivity() {
         }
     }
 
+
     // 发送命令到设备
     private fun sendCommand(command: String, deviceName: String, targetDeviceName: String) {
-        Client.setDeviceName(deviceName)
-        Client.setTargetDeviceName(targetDeviceName)
-        Client.setCommand(command)
-        Client.main(arrayOf(), this)// 启动TargetDevice
-        Toast.makeText(this, "命令已发送: $command", Toast.LENGTH_SHORT).show()
+        CoroutineScope(Dispatchers.IO).launch {
+            Client.setDeviceName(deviceName)
+            Client.setTargetDeviceName(targetDeviceName)
+            Client.setCommand(command)
+            Client.main(arrayOf(),this@ElectronicDoorActivity) // 启动TargetDevice
+
+            // 切换到主线程显示Toast
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@ElectronicDoorActivity, "命令已发送: $command", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // 更改密码功能

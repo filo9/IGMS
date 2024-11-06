@@ -2,7 +2,8 @@ package com.your.user
 
 import android.content.Context
 import android.util.Base64
-import org.bouncycastle.jce.provider.BouncyCastleProvider
+import android.util.Log
+import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -44,13 +45,10 @@ class Client {
         private const val AES_KEY_SIZE = 128
         private const val GCM_IV_LENGTH = 12
         private const val GCM_TAG_LENGTH = 128
-        private const val TRUSTSTORE_FILE = "clienttruststore.p12" // 使用 PKCS12 格式的信任库文件
-        private const val TRUSTSTORE_PASSWORD = "password"
+        private const val trustStorePassword = "password"
 
         init {
-            // 添加 Bouncy Castle 提供程序
             Security.addProvider(BouncyCastleProvider())
-            println("Bouncy Castle provider added.")
         }
 
         @JvmStatic
@@ -85,12 +83,12 @@ class Client {
 
                 // 加载 PKCS12 信任存储
                 val trustStore = KeyStore.getInstance("PKCS12")
-                FileInputStream(TRUSTSTORE_FILE).use { trustStoreIS ->
-                    trustStore.load(trustStoreIS, TRUSTSTORE_PASSWORD.toCharArray())
-                }
+                val inputStream = context.resources.openRawResource(R.raw.clienttruststore)
+                Log.d("RegisterActivity", "正在加载信任存储: clienttruststore")
+                trustStore.load(inputStream, trustStorePassword.toCharArray())
 
                 // 初始化 TrustManagerFactory
-                val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+                val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
                 trustManagerFactory.init(trustStore)
 
                 // 初始化 SSLContext
@@ -98,7 +96,7 @@ class Client {
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器的 IP 地址
-                val serverAddress = InetAddress.getByName("192.168.1.105")
+                val serverAddress = InetAddress.getByName("113.54.245.142")
                 println("服务器地址: ${serverAddress.hostAddress}")
 
                 // 创建 SSLSocket
@@ -158,7 +156,7 @@ class Client {
         }
 
         private fun encryptAesKeyWithPublicKey(aesKey: ByteArray, publicKey: PublicKey): ByteArray {
-            val cipher = Cipher.getInstance("ECIES", "BC")
+            val cipher = Cipher.getInstance("ECIES","SC")
             cipher.init(Cipher.ENCRYPT_MODE, publicKey)
             return cipher.doFinal(aesKey)
         }

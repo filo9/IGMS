@@ -20,7 +20,7 @@ import java.net.Socket;
 
 public class GatewayServer {
     private static final int PORT = 12345;
-    private static final int COMMAND_PORT = 55555;
+    private static final int COMMAND_PORT = 5555;
     private static boolean running = true;
     private static final String GATEWAY_PRIVATE_KEY_FILE = "GatewayServerPrivateKey.pem";
     private static final long TIMESTAMP_VALIDITY_PERIOD = 5 * 60 * 1000; // 5 minutes
