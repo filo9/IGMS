@@ -6,7 +6,7 @@ import java.io.File;
 
 public class USER extends JFrame {
 
- public static String USER_NAME = "";
+ public static String USER_NAME = "ERLA";
  private JButton buttonUser1, buttonUser2, buttonUser3, registerButton;
  private Point initialClick;
 

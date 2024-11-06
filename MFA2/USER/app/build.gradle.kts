@@ -34,16 +34,14 @@ android {
         jvmTarget = "1.8"
     }
     viewBinding {
-        enable = true // 使用 `enable` 而不是 `enabled`
+        enable = true
     }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0") // 确保与 Kotlin 插件版本一致
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
-    implementation ("com.madgag.spongycastle:prov:1.58.0.0")
-    implementation ("com.madgag.spongycastle:core:1.58.0.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+    implementation("com.madgag.spongycastle:prov:1.58.0.0")
+    implementation("com.madgag.spongycastle:core:1.58.0.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     implementation(libs.androidx.core.ktx)

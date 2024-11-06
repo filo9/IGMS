@@ -1,7 +1,7 @@
 package com.your.user
 
 import android.content.Context
-import android.util.Base64
+import java.util.Base64
 import android.util.Log
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.io.ByteArrayOutputStream
@@ -96,7 +96,7 @@ class Client {
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器的 IP 地址
-                val serverAddress = InetAddress.getByName("113.54.245.142")
+                val serverAddress = InetAddress.getByName("113.54.229.252")
                 println("服务器地址: ${serverAddress.hostAddress}")
 
                 // 创建 SSLSocket
@@ -105,8 +105,8 @@ class Client {
                     println("连接到服务器: ${socket.inetAddress}")
                     // 7. 通过 TLS 发送加密后的 AES 密钥和消息
                     PrintWriter(socket.outputStream, true).use { out ->
-                        out.println(Base64.encodeToString(encryptedAesKey, Base64.DEFAULT)) // 发送 AES 密钥
-                        out.println(Base64.encodeToString(encryptedMessage, Base64.DEFAULT)) // 发送加密消息
+                        out.println(Base64.getEncoder().encodeToString(encryptedAesKey)) // 发送 AES 密钥
+                        out.println(Base64.getEncoder().encodeToString(encryptedMessage)) // 发送加密消息
                         println("消息已发送至服务器。")
                     }
                 }
@@ -166,7 +166,7 @@ class Client {
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replace("\\s+".toRegex(), "")
-            val encoded = Base64.decode(privateKeyPEM, Base64.DEFAULT)
+            val encoded = Base64.getDecoder().decode(privateKeyPEM)
             val keyFactory = KeyFactory.getInstance("EC")
             return keyFactory.generatePrivate(PKCS8EncodedKeySpec(encoded))
         }
@@ -176,7 +176,7 @@ class Client {
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replace("\\s+".toRegex(), "")
-            val encoded = Base64.decode(publicKeyPEM, Base64.DEFAULT)
+            val encoded = Base64.getDecoder().decode(publicKeyPEM)
             val keyFactory = KeyFactory.getInstance("EC")
             return keyFactory.generatePublic(X509EncodedKeySpec(encoded))
         }
