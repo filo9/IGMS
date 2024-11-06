@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:ignore="ExtraText">
+    tools:ignore="ExtraText"
+    android:background="@drawable/background_image">
     <!-- 返回按钮 -->
     <Button
         android:id="@+id/btnBack"
@@ -12,24 +13,31 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:text="返回"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
+
     <EditText
         android:id="@+id/etWifiAccount"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:hint="输入WiFi" />
+        android:layout_height="98dp"
+        android:hint="输入WiFi"
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/etWifiPassword"
         android:layout_width="match_parent"
         android:layout_height="98dp"
         android:hint="输入密码"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/btnSend"
         android:layout_width="match_parent"
         android:layout_height="110dp"
         android:text="发送音频"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 </LinearLayout>

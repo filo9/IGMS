@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/background_image">
 
     <!-- 信息显示区 -->
 
@@ -15,6 +16,8 @@
         android:layout_height="447dp"
         android:padding="8dp"
         android:text="注册信息:"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="24sp" />
 
     <Button
@@ -23,6 +26,8 @@
         android:layout_height="103dp"
         android:layout_marginTop="16dp"
         android:text="返回"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
 </LinearLayout>

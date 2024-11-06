@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/btn_turn"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="开关"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
     <Button
@@ -17,6 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="亮度升高"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
     <Button
@@ -24,6 +27,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="亮度降低"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
     <Button
@@ -31,6 +36,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="返回"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
 </LinearLayout>

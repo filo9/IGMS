@@ -2,7 +2,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/background_image">
 
     <TextView
         android:id="@+id/userNameTextView"
@@ -11,7 +12,7 @@
         android:text="未登录"
         android:textSize="24sp"
         android:padding="8dp"
-        android:textColor="#000000"
+        android:textColor="#AAFF69B4"
         android:gravity="center"/>
 
     <Button
@@ -19,6 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="设置用户" />
 
     <Button
@@ -26,6 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="注册" />
 
     <Button
@@ -33,6 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="音频配对" />
 
     <Button
@@ -40,6 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="控制门" />
 
     <Button
@@ -47,6 +56,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:text="控制灯"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
     <Button
@@ -54,6 +65,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="控制空调" />
 
     <Button
@@ -61,6 +74,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="注销" />
 
     <Button
@@ -68,5 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="退出" />
 </LinearLayout>

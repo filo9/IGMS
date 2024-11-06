@@ -54,7 +54,7 @@ class RegisterActivity : AppCompatActivity() {
                 if (!dir.exists()) dir.mkdirs()
 
                 // 加载信任存储
-                val trustStore = KeyStore.getInstance("PKCS12")
+                val trustStore = KeyStore.getInstance("PKCS12", "BC")
                 val inputStream = resources.openRawResource(R.raw.clienttruststore)
                 Log.d("RegisterActivity", "正在加载信任存储: clienttruststore")
                 trustStore.load(inputStream, trustStorePassword.toCharArray())
@@ -67,8 +67,8 @@ class RegisterActivity : AppCompatActivity() {
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器地址
-                val serverAddress = InetAddress.getByName("113.54.245.142")
-                updateOutput("找到服务器地址: 113.54.245.142")
+                val serverAddress = InetAddress.getByName("192.168.1.106")
+                updateOutput("找到服务器地址: 192.168.1.106")
                 // 创建 SSLSocket 并连接到服务器
                 sslContext.socketFactory.createSocket(serverAddress, port).use { socket ->
                     val out = PrintWriter(socket.getOutputStream(), true)

@@ -1,11 +1,13 @@
 import javax.net.ssl.*;
 import java.io.*;
-import java.net.*;
-import java.nio.file.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 public class Administrator {
  private static SSLServerSocket serverSocket;
@@ -51,10 +53,12 @@ public class Administrator {
       String publicKeyFilePath = "clientPublicKey_" + deviceName + ".pem";
       File publicKeyFile = new File(publicKeyFilePath);
       String privateKeyFilePath = "keystore_" + deviceName; // 假设私钥存在于该路径
-
+      String PublicKeyFilePath = "keystore_" + deviceName;
       if (!publicKeyFile.exists()) {
        // 设备名称不存在，生成新的密钥对
        generateKeyPair(KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_PASSWORD, deviceName);
+       PublicKey publicKey = getPublicKeyFromKeystore("keystore_" + deviceName, "serverkey_" + deviceName, KEYSTORE_PASSWORD, KEY_PASSWORD);
+       savePublicKey(publicKey, publicKeyFilePath);
       }
        // 设备已注册，读取私钥和网关公钥并发送
        PrivateKey privateKey = getPrivateKeyFromKeystore(privateKeyFilePath, "serverkey_" + deviceName, KEYSTORE_PASSWORD, KEY_PASSWORD);
@@ -118,7 +122,11 @@ public class Administrator {
    e.printStackTrace();
   }
  }
-
+ private static void savePublicKey(PublicKey publicKey, String filePath) throws IOException {
+  byte[] encodedKey = Base64.getEncoder().encode(publicKey.getEncoded());
+  String pemKey = "-----BEGIN PUBLIC KEY-----\n" + new String(encodedKey) + "\n-----END PUBLIC KEY-----";
+  Files.write(Paths.get(filePath), pemKey.getBytes());
+ }
  private static PrivateKey getPrivateKeyFromKeystore(String keystoreFile, String alias, String keystorePassword, String keyPassword) throws Exception {
   FileInputStream fis = new FileInputStream(keystoreFile);
   KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());

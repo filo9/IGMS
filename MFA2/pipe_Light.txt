@@ -85,3 +85,17 @@ bathroomLight UP
 卫生间灯 TURN
 客厅灯 TURN
 客厅灯 UP
+客厅灯 TURN
+客厅灯 UP
+客厅灯 UP
+客厅灯 UP
+客厅灯 TURN
+客厅灯 TURN
+卧室灯 TURN
+卧室灯 DOWN
+卧室灯 UP
+卧室灯 UP
+卫生间灯 UP
+卫生间灯 DOWN
+客厅灯 TURN
+客厅灯 TURN

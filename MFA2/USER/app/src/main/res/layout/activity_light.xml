@@ -4,13 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/background_image">
 
     <Button
         android:id="@+id/btn_living_room"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="客厅灯" />
 
     <Button
@@ -18,6 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="卧室灯" />
 
     <Button
@@ -25,6 +30,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="卫生间灯" />
 
     <Button
@@ -32,6 +39,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:textSize="36sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:text="退出" />
 
 </LinearLayout>

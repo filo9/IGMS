@@ -1,0 +1,23 @@
+<!-- res/drawable/glass_button_blue_ripple.xml -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@android:color/white">
+    <item>
+        <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+            <item android:right="1dp" android:left="1dp" android:top="1dp" android:bottom="1dp">
+                <!-- 半透明蓝色背景 -->
+                <shape android:shape="rectangle">
+                    <solid android:color="#AA0000FF"/> <!-- 半透明蓝色 -->
+                    <corners android:radius="12dp"/>
+                </shape>
+            </item>
+
+            <item>
+                <!-- 阴影效果 -->
+                <shape android:shape="rectangle">
+                    <solid android:color="#55000000"/> <!-- 透明的阴影 -->
+                    <corners android:radius="12dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</ripple>

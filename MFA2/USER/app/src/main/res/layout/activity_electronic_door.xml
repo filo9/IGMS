@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    android:padding="20dp"
+    android:background="@drawable/background_image">
 
     <!-- 返回按钮 -->
 
@@ -28,6 +29,8 @@
         android:layout_below="@+id/btn_back"
         android:layout_marginTop="25dp"
         android:text="开门"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
     <Button
@@ -37,6 +40,8 @@
         android:layout_below="@id/btn_open_door"
         android:layout_marginTop="17dp"
         android:text="关门"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
     <Button
@@ -46,6 +51,8 @@
         android:layout_below="@id/btn_close_door"
         android:layout_marginTop="17dp"
         android:text="更改密码"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 
 </RelativeLayout>
