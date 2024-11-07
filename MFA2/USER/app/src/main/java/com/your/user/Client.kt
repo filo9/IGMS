@@ -6,7 +6,6 @@ import android.util.Log
 import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.PrintWriter
 import java.net.Inet4Address
 import java.net.InetAddress
@@ -80,9 +79,11 @@ class Client {
                 val gatewaykeyFilePath = File(context.filesDir, GATEWAY_PUBLIC_KEY_FILE).absolutePath
                 val gatewayPublicKey = loadPublicKey(gatewaykeyFilePath)
                 val encryptedAesKey = encryptAesKeyWithPublicKey(aesKey.encoded, gatewayPublicKey)
-
+                if (Security.getProvider("SC") == null) {
+                    Security.addProvider(BouncyCastleProvider())
+                }
                 // 加载 PKCS12 信任存储
-                val trustStore = KeyStore.getInstance("PKCS12", "BC")
+                val trustStore = KeyStore.getInstance("PKCS12", "SC")
                 val inputStream = context.resources.openRawResource(R.raw.clienttruststore)
                 Log.d("RegisterActivity", "正在加载信任存储: clienttruststore")
                 trustStore.load(inputStream, trustStorePassword.toCharArray())
@@ -96,7 +97,7 @@ class Client {
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器的 IP 地址
-                val serverAddress = InetAddress.getByName("192.168.1.106")
+                val serverAddress = InetAddress.getByName("192.168.1.112")
                 println("服务器地址: ${serverAddress.hostAddress}")
 
                 // 创建 SSLSocket
