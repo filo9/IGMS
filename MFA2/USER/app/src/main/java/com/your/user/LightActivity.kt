@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.view.WindowManager
 
 class LightActivity : AppCompatActivity() {
     private val DEVICE_NAME = MainActivity.USER_NAME
@@ -17,7 +18,9 @@ class LightActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_light)
-
+        // 设置为全屏
+        window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
+        window?.setBackgroundDrawableResource(android.R.color.transparent)
         val livingRoomButton = findViewById<Button>(R.id.btn_living_room)
         val bedroomButton = findViewById<Button>(R.id.btn_bedroom)
         val bathroomButton = findViewById<Button>(R.id.btn_bathroom)

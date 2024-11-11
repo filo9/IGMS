@@ -36,8 +36,8 @@
         android:id="@+id/btnSend"
         android:layout_width="match_parent"
         android:layout_height="110dp"
+        android:background="@drawable/glass_button_background"
         android:text="发送音频"
         android:textColor="#FFFFFF"
-        android:background="@drawable/glass_button_background"
         android:textSize="36sp" />
 </LinearLayout>

@@ -7,11 +7,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintWriter
-import java.net.Inet4Address
 import java.net.InetAddress
-import java.net.NetworkInterface
-import java.net.SocketException
-import java.net.UnknownHostException
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
@@ -40,6 +36,7 @@ class Client {
         private var DEVICE_NAME = ""
         private var TARGET_DEVICE_NAME = ""
         private var COMMAND = ""
+        private var IP = MainActivity.IP
         private const val GATEWAY_PUBLIC_KEY_FILE = "$RECEIVED_KEYS_DIR/GatewayServerPublicKey.pem"
         private const val AES_KEY_SIZE = 128
         private const val GCM_IV_LENGTH = 12
@@ -97,7 +94,7 @@ class Client {
                 sslContext.init(null, trustManagerFactory.trustManagers, null)
 
                 // 获取服务器的 IP 地址
-                val serverAddress = InetAddress.getByName("192.168.1.112")
+                val serverAddress = InetAddress.getByName("IP")
                 println("服务器地址: ${serverAddress.hostAddress}")
 
                 // 创建 SSLSocket
@@ -217,34 +214,6 @@ class Client {
         private fun getClientPrivateKeyFile(context: Context): String {
             val keyFilePath = File(context.filesDir, "received_keys/clientPrivateKey_$DEVICE_NAME.pem").absolutePath
             return keyFilePath
-        }
-
-        private fun getServerAddress(): InetAddress? {
-            try {
-                val interfaces = NetworkInterface.getNetworkInterfaces()
-                while (interfaces.hasMoreElements()) {
-                    val networkInterface = interfaces.nextElement()
-                    if (networkInterface.isLoopback || !networkInterface.isUp) {
-                        continue
-                    }
-                    val addresses = networkInterface.inetAddresses
-                    while (addresses.hasMoreElements()) {
-                        val address = addresses.nextElement()
-                        if (address is Inet4Address && !address.isLoopbackAddress()) {
-                            val parts = address.getHostAddress().split("\\.".toRegex())
-                                .dropLastWhile { it.isEmpty() }
-                                .toTypedArray()
-                            parts[3] = "1" // 替换为1以获取特定的服务器地址
-                            return InetAddress.getByName(java.lang.String.join(".", *parts))
-                        }
-                    }
-                }
-            } catch (e: SocketException) {
-                e.printStackTrace()
-            } catch (e: UnknownHostException) {
-                e.printStackTrace()
-            }
-            return null
         }
 
         fun setDeviceName(newDeviceName: String) {

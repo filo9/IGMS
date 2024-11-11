@@ -10,11 +10,17 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.your.user.databinding.ActivityMainBinding
 import java.io.File
+import java.net.Inet4Address
+import java.net.InetAddress
+import java.net.NetworkInterface
+import java.net.SocketException
+import java.net.UnknownHostException
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         var USER_NAME: String = ""
+        var IP = "113.54.236.249"//getServerAddress()
     }
 
     private lateinit var registerButton: Button
@@ -164,5 +170,31 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateUI() // 确保每次返回主界面时更新界面状态
+    }
+    // 获取服务器的 IP 地址
+    private fun getServerAddress(): InetAddress? {
+        try {
+            val interfaces = NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val networkInterface = interfaces.nextElement()
+                if (networkInterface.isLoopback || !networkInterface.isUp) {
+                    continue
+                }
+                val addresses = networkInterface.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    val address = addresses.nextElement()
+                    if (address is Inet4Address && !address.isLoopbackAddress()) {
+                        val parts = address.hostAddress.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                        parts[3] = "1" // 替换为1以获取特定的服务器地址
+                        return InetAddress.getByName(parts.joinToString("."))
+                    }
+                }
+            }
+        } catch (e: SocketException) {
+            e.printStackTrace()
+        } catch (e: UnknownHostException) {
+            e.printStackTrace()
+        }
+        return null
     }
 }
